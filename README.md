@@ -1,2 +1,2 @@
 # HfsChargesContainer
-EC2 container for Housing Finance Services "Charges Import" Nightly Process.
+EC2 container for Housing Finance System "Charges Import" Nightly Process.
