@@ -91,4 +91,4 @@ workflows:
       - deploy-to-development:
           filters:
             branches:
-              only: master
+              only: main
