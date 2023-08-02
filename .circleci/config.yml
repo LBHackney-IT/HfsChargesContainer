@@ -61,8 +61,8 @@ commands:
 
             aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin ${ECR_URL}
 
-            # docker tag hfs/nightly/charges-ingest:latest ${ECR_URL}/hfs/nightly/charges-ingest:latest
-            # docker push ${ECR_URL}/hfs/nightly/charges-ingest:latest
+            docker tag hfs/nightly/charges-ingest:latest ${ECR_URL}/hfs/nightly/charges-ingest:latest
+            docker push ${ECR_URL}/hfs/nightly/charges-ingest:latest
 
 jobs:
   check-code-formatting:
