@@ -1,0 +1,94 @@
+version: 2.1
+
+orbs:
+  aws_assume_role: lbh-hackit/aws_assume_role@0.1.0
+  aws-cli: circleci/aws-cli@0.1.9
+
+executors:
+  docker-python:
+    docker:
+      - image: circleci/python:3.7
+  docker-dotnet:
+    docker:
+      - image: mcr.microsoft.com/dotnet/sdk:6.0
+
+references:
+  workspace_root: &workspace_root "~"
+  attach_workspace: &attach_workspace
+    attach_workspace:
+      at: *workspace_root
+
+commands:
+  assume-role-and-persist-workspace:
+    description: "Assumes deployment role and persists credentials across jobs"
+    parameters:
+      aws-account:
+        type: string
+    steps:
+      - checkout
+      - aws_assume_role/assume_role:
+          account: <<parameters.aws-account>>
+          profile_name: default
+          role: "LBH_Circle_CI_Deployment_Role"
+      - persist_to_workspace:
+          root: *workspace_root
+          paths:
+            - .aws
+  deploy-image:
+    description: "Deploys application image to ECR"
+    parameters:
+      environment:
+        type: string
+        description: environment stage
+    steps:
+      - *attach_workspace
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build the application image
+          command: docker build -t hfs/nightly/charges-ingest .
+      - run:
+          name: Docker stuff
+          command: |
+            ENVIRONMENT=<<parameters.environment>>
+
+            CHARGES_ECR_URL_SSM_KEY="/hfs/${ENVIRONMENT}/charges-ingest/ecr-url"
+            ECR_URL=$(shell aws ssm get-parameter --name ${CHARGES_ECR_URL_SSM_KEY} --region "eu-west-2" --query Parameter.Value --output text)
+
+            aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin ${ECR_URL}
+
+            # docker tag hfs/nightly/charges-ingest:latest ${ECR_URL}/hfs/nightly/charges-ingest:latest
+            # docker push ${ECR_URL}/hfs/nightly/charges-ingest:latest
+
+jobs:
+  check-code-formatting:
+    executor: docker-dotnet
+    steps:
+      - checkout
+      - run:
+          name: Install dotnet format
+          command: dotnet tool install dotnet-format --tool-path ./dotnet-format-local/
+      - run:
+          name: Run formatter check
+          command: ./dotnet-format-local/dotnet-format --check
+  assume-role-development:
+    executor: docker-python
+    steps:
+      - assume-role-and-persist-workspace:
+          aws-account: $AWS_ACCOUNT_DEVELOPMENT
+  deploy-to-development:
+    executor: docker-dotnet
+    steps:
+      - deploy-image:
+          environment: "development"
+
+workflows:
+  check-and-deploy-development:
+    jobs:
+      - check-code-formatting
+      - assume-role-development:
+          context: api-assume-role-housing-development-context
+      - deploy-to-development:
+          filters:
+            branches:
+              only: master
