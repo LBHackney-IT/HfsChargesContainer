@@ -57,7 +57,7 @@ commands:
             ENVIRONMENT=<<parameters.environment>>
 
             CHARGES_ECR_URL_SSM_KEY="/hfs/${ENVIRONMENT}/charges-ingest/ecr-url"
-            ECR_URL=$(shell aws ssm get-parameter --name ${CHARGES_ECR_URL_SSM_KEY} --region "eu-west-2" --query Parameter.Value --output text)
+            ECR_URL=$(aws ssm get-parameter --name ${CHARGES_ECR_URL_SSM_KEY} --region "eu-west-2" --query Parameter.Value --output text)
 
             aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin ${ECR_URL}
 
