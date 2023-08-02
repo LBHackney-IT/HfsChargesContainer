@@ -13,7 +13,7 @@ executors:
       - image: mcr.microsoft.com/dotnet/sdk:6.0
   cci-aws:
     docker:
-      - image: cimg/aws:latest
+      - image: cimg/aws
 
 references:
   workspace_root: &workspace_root "~"
