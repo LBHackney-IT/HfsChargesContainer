@@ -7,8 +7,7 @@ RUN dotnet publish -c Release -o out
 
 FROM mcr.microsoft.com/dotnet/runtime:6.0-alpine
 
-WORKDIR /app/
+WORKDIR /app
 COPY --from=build /code/out/ .
 
-EXPOSE ${PORT:-3000}
-CMD ASPNETCORE_URLS=http://+:${PORT:-3000} dotnet ./HfsChargesContainer.dll
+CMD dotnet ./HfsChargesContainer.dll
