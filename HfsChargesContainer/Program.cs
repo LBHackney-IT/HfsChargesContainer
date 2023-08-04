@@ -1,6 +1,10 @@
 using HfsChargesContainer;
+using HfsChargesContainer.Gateways;
+using HfsChargesContainer.Gateways.Interfaces;
+using HfsChargesContainer.Infrastructure;
 using HfsChargesContainer.UseCases;
 using HfsChargesContainer.UseCases.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 Console.WriteLine("Application started!");
@@ -11,6 +15,13 @@ string connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING"
 Console.WriteLine(connectionString);
 
 var serviceProvider = new ServiceCollection()
+    .AddDbContext<DatabaseContext>(opt => 
+        opt.UseSqlServer(connectionString, sqlOptions =>
+        {
+            sqlOptions.CommandTimeout(360);
+        })
+    )
+    .AddScoped<IHousingFinanceGateway, HousingFinanceGateway>()
     .AddScoped<IUseCase1, UseCase1>()
     .AddScoped<ProcessEntryPoint>()
     .BuildServiceProvider();

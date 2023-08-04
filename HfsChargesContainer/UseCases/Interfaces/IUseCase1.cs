@@ -1,4 +1,3 @@
-
 namespace HfsChargesContainer.UseCases.Interfaces
 {
     public interface IUseCase1
