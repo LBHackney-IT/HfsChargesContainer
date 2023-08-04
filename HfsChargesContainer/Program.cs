@@ -1,4 +1,4 @@
-using HfsChargesContainer;
+﻿using HfsChargesContainer;
 using HfsChargesContainer.Gateways;
 using HfsChargesContainer.Gateways.Interfaces;
 using HfsChargesContainer.Infrastructure;
@@ -10,7 +10,12 @@ using Microsoft.Extensions.DependencyInjection;
 Console.WriteLine("Application started!");
 
 Console.WriteLine("Configuring the Start up!");
-string connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING") ?? throw new ArgumentNullException(nameof(connectionString));
+string dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? throw new ArgumentNullException(nameof(dbHost));
+string dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? throw new ArgumentNullException(nameof(dbName));
+string dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? throw new ArgumentNullException(nameof(dbUser));
+string dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? throw new ArgumentNullException(nameof(dbPassword));
+
+string connectionString = $"Data Source={dbHost},1433;Initial Catalog={dbName};Integrated Security=False;User Id={dbUser};Password={dbPassword};Encrypt=False;TrustServerCertificate=False;MultipleActiveResultSets=True;";
 
 Console.WriteLine(connectionString);
 
