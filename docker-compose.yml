@@ -6,3 +6,4 @@ services:
       dockerfile: ./HfsChargesContainer/Dockerfile
     env_file:
        - .env
+    network_mode: host
