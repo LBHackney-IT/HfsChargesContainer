@@ -2,7 +2,7 @@ services:
   hfs-charges-nightly-process:
     image: hfs-charges-nightly-process
     build:
-      context: HfsChargesContainer/
-      dockerfile: ./Dockerfile
-    ports:
-      - 3000:3000
+      context: .
+      dockerfile: ./HfsChargesContainer/Dockerfile
+    env_file:
+       - .env
