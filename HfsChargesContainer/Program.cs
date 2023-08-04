@@ -20,7 +20,7 @@ string connectionString = $"Data Source={dbHost},1433;Initial Catalog={dbName};I
 Console.WriteLine(connectionString);
 
 var serviceProvider = new ServiceCollection()
-    .AddDbContext<DatabaseContext>(opt => 
+    .AddDbContext<DatabaseContext>(opt =>
         opt.UseSqlServer(connectionString, sqlOptions =>
         {
             sqlOptions.CommandTimeout(360);
