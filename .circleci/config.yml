@@ -50,7 +50,8 @@ commands:
       - run:
           name: Build the application image
           command: |
-            docker build -t hfs/nightly/charges-ingest HfsChargesContainer
+            docker build -t hfs-nightly-jobs-charges-ingest-tf HfsChargesContainer
+#TODO: Make the ^^^ a job parameter
       - run:
           name: Docker stuff
           command: |
