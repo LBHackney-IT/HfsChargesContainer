@@ -10,15 +10,21 @@ namespace HfsChargesContainer
 {
     public class Startup
     {
-        public Startup()
-        {}
-
-        public void ConfigureServices(IServiceCollection services)
+        private IServiceCollection ServiceCollection { get; set; }
+        public Startup(IServiceCollection serviceCollection = null)
         {
+            ServiceCollection = serviceCollection ?? new ServiceCollection();
+        }
+
+        public Startup ConfigureServices()
+        {
+            var services = this.ServiceCollection;
             ConfigureStorageInterfaces(services);
             ConfigureGateways(services);
             ConfigureUseCases(services);
             ConfigureEntry(services);
+
+            return this;
         }
 
         public string GetConnectionString()
@@ -58,9 +64,9 @@ namespace HfsChargesContainer
             services.AddScoped<ProcessEntryPoint>();
         }
 
-        public IEntry Build<TEntry>(IServiceCollection services) where TEntry : IEntry
+        public IEntry Build<TEntry>() where TEntry : IEntry
         {
-            var serviceProvider = services.BuildServiceProvider();
+            var serviceProvider = this.ServiceCollection.BuildServiceProvider();
             return serviceProvider.GetRequiredService<TEntry>();
         }
     }

@@ -1,13 +1,10 @@
 ﻿using HfsChargesContainer;
-using Microsoft.Extensions.DependencyInjection;
 
-Console.WriteLine("Application started!");
+Console.WriteLine("Application started!\nConfiguring the Start up!");
 
-Console.WriteLine("Configuring the Start up!");
-var startup = new Startup();
-var serviceCollection = new ServiceCollection();
-startup.ConfigureServices(serviceCollection);
-var entryPoint = startup.Build<ProcessEntryPoint>(serviceCollection);
+var entryPoint = new Startup()
+    .ConfigureServices()
+    .Build<ProcessEntryPoint>();
 
 Console.WriteLine("Ready to Run!");
 entryPoint.Run();
