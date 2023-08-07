@@ -51,10 +51,10 @@ commands:
           name: Build the application image
           command: |
             ENVIRONMENT=<<parameters.environment>>
-            CHARGES_ECR_URL_SSM_KEY="/housing/${ENVIRONMENT}/ecr-url"
+            CHARGES_ECR_NAME_SSM_KEY="/hfs/nightly/${ENVIRONMENT}/charges-ingest/ecr-name"
             ECR_NAME=$(aws ssm get-parameter --name ${CHARGES_ECR_NAME_SSM_KEY} --region "eu-west-2" --query Parameter.Value --output text)
 
-            docker build -t hfs-nightly-jobs-charges-ingest HfsChargesContainer
+            docker build -t ${ECR_NAME} HfsChargesContainer
 #TODO: Make the ^^^ a job parameter
       - run:
           name: Docker stuff
