@@ -50,20 +50,26 @@ commands:
       - run:
           name: Build the application image
           command: |
-            docker build -t hfs-nightly-jobs-charges-ingest-tf HfsChargesContainer
+            ENVIRONMENT=<<parameters.environment>>
+            CHARGES_ECR_URL_SSM_KEY="/housing/${ENVIRONMENT}/ecr-url"
+            ECR_NAME=$(aws ssm get-parameter --name ${CHARGES_ECR_NAME_SSM_KEY} --region "eu-west-2" --query Parameter.Value --output text)
+
+            docker build -t hfs-nightly-jobs-charges-ingest HfsChargesContainer
 #TODO: Make the ^^^ a job parameter
       - run:
           name: Docker stuff
           command: |
             ENVIRONMENT=<<parameters.environment>>
+            CHARGES_ECR_URL_SSM_KEY="/housing/${ENVIRONMENT}/ecr-url"
+            CHARGES_ECR_NAME_SSM_KEY="/hfs/nightly/${ENVIRONMENT}/charges-ingest/ecr-name"
 
-            CHARGES_ECR_URL_SSM_KEY="/hfs/nightly/${ENVIRONMENT}/charges-ingest/ecr-url"
             ECR_URL=$(aws ssm get-parameter --name ${CHARGES_ECR_URL_SSM_KEY} --region "eu-west-2" --query Parameter.Value --output text)
+            ECR_NAME=$(aws ssm get-parameter --name ${CHARGES_ECR_NAME_SSM_KEY} --region "eu-west-2" --query Parameter.Value --output text)
 
             aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin ${ECR_URL}
 
-            docker tag hfs-nightly-jobs-charges-ingest-tf:latest ${ECR_URL}/hfs-nightly-jobs-charges-ingest-tf:latest
-            docker push ${ECR_URL}/hfs-nightly-jobs-charges-ingest-tf:latest
+            docker tag ${ECR_NAME}:latest ${ECR_URL}/${ECR_NAME}:latest
+            docker push ${ECR_URL}/${ECR_NAME}:latest
 
 jobs:
   check-code-formatting:
