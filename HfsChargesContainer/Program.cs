@@ -9,4 +9,6 @@ var entryPoint = new Startup()
 Console.WriteLine("Ready to Run!");
 entryPoint.Run();
 
+Console.Error.WriteLine("Test Error Log Behaviour");
+
 Console.WriteLine("Application finished!");
