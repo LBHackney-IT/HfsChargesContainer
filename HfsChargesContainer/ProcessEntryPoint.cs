@@ -2,7 +2,7 @@ using HfsChargesContainer.UseCases.Interfaces;
 
 namespace HfsChargesContainer
 {
-    public class ProcessEntryPoint
+    public class ProcessEntryPoint : IEntry
     {
         private readonly IUseCase1 _useCase1;
 
