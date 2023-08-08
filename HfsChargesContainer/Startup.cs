@@ -68,7 +68,7 @@ namespace HfsChargesContainer
                 }
             };
 
-            string jsonKey = GetGCPJsonCredentials();            
+            string jsonKey = GetGCPJsonCredentials();
             var credential = GoogleCredential.FromJson(jsonKey).CreateScoped(gcsOptions.Scopes);
 
             var baseClientService = new BaseClientService.Initializer()
