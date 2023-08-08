@@ -1,3 +1,6 @@
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Services;
+using Google.Apis.Sheets.v4;
 using HfsChargesContainer.Gateways;
 using HfsChargesContainer.Gateways.Interfaces;
 using HfsChargesContainer.Infrastructure;
@@ -23,6 +26,7 @@ namespace HfsChargesContainer
             ConfigureGateways(services);
             ConfigureUseCases(services);
             ConfigureEntry(services);
+            ConfigureGoogleClient(services);
 
             return this;
         }
@@ -37,6 +41,10 @@ namespace HfsChargesContainer
             return $"Data Source={dbHost},1433;Initial Catalog={dbName};Integrated Security=False;User Id={dbUser};Password={dbPassword};Encrypt=False;TrustServerCertificate=False;MultipleActiveResultSets=True;";
         }
 
+        public string GetGCPJsonCredentials()
+            => Environment.GetEnvironmentVariable("GOOGLE_API_KEY")
+            ?? throw new ArgumentNullException("Google Cloud credentials are missing.");
+
         public void ConfigureStorageInterfaces(IServiceCollection services)
         {
             var hfsDbConnectionString = GetConnectionString();
@@ -47,6 +55,30 @@ namespace HfsChargesContainer
                     sqlOptions.CommandTimeout(360);
                 })
             );
+        }
+
+        public void ConfigureGoogleClient(IServiceCollection services)
+        {
+            var gcsOptions = new GoogleClientServiceOptions
+            {
+                ApplicationName = "HFS Charges Ingest Container",
+                Scopes = new List<string>
+                {
+                    SheetsService.Scope.SpreadsheetsReadonly
+                }
+            };
+
+            string jsonKey = GetGCPJsonCredentials();            
+            var credential = GoogleCredential.FromJson(jsonKey).CreateScoped(gcsOptions.Scopes);
+
+            var baseClientService = new BaseClientService.Initializer()
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = gcsOptions.ApplicationName
+            };
+
+            services.AddScoped(sp => new SheetsService(baseClientService));
+            services.AddScoped<IGoogleClientService, GoogleClientService>();
         }
 
         public void ConfigureGateways(IServiceCollection services)
