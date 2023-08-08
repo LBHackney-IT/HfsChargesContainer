@@ -106,4 +106,4 @@ workflows:
               - assume-role-development
           filters:
             branches:
-              only: main
+              only: dummy-test

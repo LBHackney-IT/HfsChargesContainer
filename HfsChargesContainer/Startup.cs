@@ -42,8 +42,10 @@ namespace HfsChargesContainer
         }
 
         public string GetGCPJsonCredentials()
-            => Environment.GetEnvironmentVariable("GOOGLE_API_KEY")
-            ?? throw new ArgumentNullException("Google Cloud credentials are missing.");
+        {
+            string gcpCreds = Environment.GetEnvironmentVariable("GOOGLE_API_KEY") ?? throw new ArgumentNullException("Google Cloud credentials are missing.");
+            return gcpCreds;
+        }
 
         public void ConfigureStorageInterfaces(IServiceCollection services)
         {
