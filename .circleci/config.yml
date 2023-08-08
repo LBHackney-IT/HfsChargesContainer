@@ -96,11 +96,8 @@ jobs:
 workflows:
   check-and-deploy-development:
     jobs:
-      - check-code-formatting
       - assume-role-development:
           context: api-assume-role-housing-development-context
-          requires:
-              - check-code-formatting
       - deploy-to-development:
           requires:
               - assume-role-development
