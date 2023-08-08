@@ -7,7 +7,7 @@ var entryPoint = new Startup()
     .Build<ProcessEntryPoint>();
 
 Console.WriteLine("Ready to Run!");
-entryPoint.Run();
+await entryPoint.Run();
 
 Console.Error.WriteLine("Test Error Log Behaviour");
 

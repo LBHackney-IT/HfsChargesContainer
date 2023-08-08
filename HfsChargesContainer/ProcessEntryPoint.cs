@@ -10,9 +10,10 @@ namespace HfsChargesContainer
         {
             _useCase1 = useCase1;
         }
-        public void Run()
+        public async Task Run()
         {
-            _useCase1.Execute();
+            Console.WriteLine("Process Entry Point!");
+            await _useCase1.Execute();
         }
     }
 }

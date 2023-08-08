@@ -2,6 +2,6 @@ namespace HfsChargesContainer
 {
     public interface IEntry
     {
-        void Run();
+        Task Run();
     }
 }
