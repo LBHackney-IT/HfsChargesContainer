@@ -1,3 +1,4 @@
+using System;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
@@ -37,6 +38,10 @@ namespace HfsChargesContainer
             string dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? throw new ArgumentNullException(nameof(dbName));
             string dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? throw new ArgumentNullException(nameof(dbUser));
             string dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? throw new ArgumentNullException(nameof(dbPassword));
+
+            Console.WriteLine("Envs");
+            Console.WriteLine($"DB_NAME: ***{dbName}***");
+            Console.WriteLine($"GCP_JSON: ***{Environment.GetEnvironmentVariable("GOOGLE_API_KEY")?.Substring(0,10)}***");
 
             return $"Data Source={dbHost},1433;Initial Catalog={dbName};Integrated Security=False;User Id={dbUser};Password={dbPassword};Encrypt=False;TrustServerCertificate=False;MultipleActiveResultSets=True;";
         }
