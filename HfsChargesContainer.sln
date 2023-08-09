@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HfsChargesContainer", "HfsChargesContainer\HfsChargesContainer.csproj", "{BA66FA09-4ECD-48B7-A994-BD7B516A0C0A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HfsChargesContainer.Tests", "HfsChargesContainer.Tests\HfsChargesContainer.Tests.csproj", "{B1FD79C5-96C8-4A60-BF78-EAA39CD7316C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{BA66FA09-4ECD-48B7-A994-BD7B516A0C0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA66FA09-4ECD-48B7-A994-BD7B516A0C0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA66FA09-4ECD-48B7-A994-BD7B516A0C0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1FD79C5-96C8-4A60-BF78-EAA39CD7316C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1FD79C5-96C8-4A60-BF78-EAA39CD7316C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1FD79C5-96C8-4A60-BF78-EAA39CD7316C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1FD79C5-96C8-4A60-BF78-EAA39CD7316C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
