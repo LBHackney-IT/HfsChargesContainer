@@ -88,6 +88,11 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
+          name: Prepare the test container for build
+          command: |
+            # docker-compose expects to see this file even though it's not asked to spin up the main app container
+            cp .env.sample .env
+      - run:
           name: Running automated tests
           command: docker-compose run hfs-charges-nightly-process-tests
   assume-role-development:
