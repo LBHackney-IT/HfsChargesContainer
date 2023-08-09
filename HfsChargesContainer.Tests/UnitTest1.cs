@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace HfsChargesContainer.Tests;
@@ -5,7 +7,7 @@ namespace HfsChargesContainer.Tests;
 public class UnitTest1
 {
     [Fact]
-    public void Test1()
+    public async Task Test1()
     {
 
     }

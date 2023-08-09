@@ -7,3 +7,15 @@ services:
     env_file:
        - .env
     network_mode: host
+
+  hfs-charges-nightly-process-tests:
+    image: hfs-charges-nightly-process-tests
+    build:
+      context: .
+      dockerfile: ./HfsChargesContainer.Tests/Dockerfile
+    environment:
+      - DB_HOST=test-database
+      - DB_USER=myuser
+      - DB_PASSWORD=mypassword
+      - DB_NAME=testdb
+      - GOOGLE_API_KEY=secret-json-key
