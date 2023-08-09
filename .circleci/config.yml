@@ -82,6 +82,14 @@ jobs:
       - run:
           name: Run formatter check
           command: ./dotnet-format-local/dotnet-format --check
+  run-automated-tests:
+    executor: docker-python
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: Build & Run tests project
+          name: Running automated tests
+          command: docker-compose run hfs-charges-nightly-process-tests
   assume-role-development:
     executor: docker-python
     steps:
@@ -97,10 +105,20 @@ workflows:
   check-and-deploy-development:
     jobs:
       - check-code-formatting
+      - run-automated-tests:
+          requires:
+            - check-code-formatting
+      - permit-deployment:
+          type: approval
+          requires:
+            - run-automated-tests
+          filters:
+            branches:
+              only: main
       - assume-role-development:
           context: api-assume-role-housing-development-context
           requires:
-              - check-code-formatting
+              - permit-deployment
       - deploy-to-development:
           requires:
               - assume-role-development
