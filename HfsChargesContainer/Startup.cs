@@ -52,11 +52,17 @@ namespace HfsChargesContainer
             => Environment.GetEnvironmentVariable("CHARGES_BATCH_YEARS")
             ?? throw new ArgumentNullException("Charges Batch Years are missing.");
 
+        public string GetBatchSize()
+            => Environment.GetEnvironmentVariable("BATCH_SIZE")
+            ?? throw new ArgumentNullException("Batch Size is missing.");
+
         public void ConfigureOptions(IServiceCollection services)
         {
             var chargesBatchYears = GetChargesBatchYears();
+            var chargesBulkInsertBatchSize = Convert.ToInt32(GetBatchSize());
 
             services.AddScoped(_ => new ChargesBatchYearsOptions(chargesBatchYears));
+            services.AddScoped(_ => new ChargesGWOptions(chargesBulkInsertBatchSize));
         }
         #endregion
         #region External Storage
@@ -99,13 +105,20 @@ namespace HfsChargesContainer
 
         public void ConfigureGateways(IServiceCollection services)
         {
+            services.AddScoped<IChargesGateway, ChargesGateway>();
+            services.AddScoped<IBatchLogGateway, BatchLogGateway>();
+            services.AddScoped<IGoogleClientService, GoogleClientService>();
+            services.AddScoped<IBatchLogErrorGateway, BatchLogErrorGateway>();
             services.AddScoped<IHousingFinanceGateway, HousingFinanceGateway>();
             services.AddScoped<IChargesBatchYearsGateway, ChargesBatchYearsGateway>();
+            services.AddScoped<IChargesBatchYearsGateway, ChargesBatchYearsGateway>();
+            services.AddScoped<IGoogleFileSettingGateway, GoogleFileSettingGateway>();
         }
 
         public void ConfigureUseCases(IServiceCollection services)
         {
             services.AddScoped<IUseCase1, UseCase1>();
+            services.AddScoped<ILoadChargesUseCase, LoadChargesUseCase>();
             services.AddScoped<ICheckChargesBatchYearsUseCase, CheckChargesBatchYearsUseCase>();
         }
 

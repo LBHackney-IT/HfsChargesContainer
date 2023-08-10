@@ -3,19 +3,19 @@ using HfsChargesContainer.Domain;
 using HfsChargesContainer.Gateways.Interfaces;
 using HfsChargesContainer.Helpers;
 using HfsChargesContainer.Infrastructure;
+using HfsChargesContainer.Options;
 
 namespace HfsChargesContainer.Gateways
 {
     public class ChargesGateway : IChargesGateway
     {
         private readonly DatabaseContext _context;
-        // TODO: Move this to Start up
+        private readonly int _batchSize;
 
-        private readonly int _batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BATCH_SIZE"));
-
-        public ChargesGateway(DatabaseContext context)
+        public ChargesGateway(DatabaseContext context, ChargesGWOptions options)
         {
             _context = context;
+            _batchSize = options.BatchSize;
         }
 
         public async Task CreateBulkAsync(IList<ChargesAuxDomain> chargesAuxDomain, string rentGroup, int year)
