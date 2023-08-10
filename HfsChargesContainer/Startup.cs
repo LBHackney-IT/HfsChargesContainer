@@ -4,6 +4,7 @@ using Google.Apis.Sheets.v4;
 using HfsChargesContainer.Gateways;
 using HfsChargesContainer.Gateways.Interfaces;
 using HfsChargesContainer.Infrastructure;
+using HfsChargesContainer.Options;
 using HfsChargesContainer.UseCases;
 using HfsChargesContainer.UseCases.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +23,8 @@ namespace HfsChargesContainer
         public Startup ConfigureServices()
         {
             var services = this.ServiceCollection;
-            ConfigureStorageInterfaces(services);
+            ConfigureOptions(services);
+            ConfigureDatabase(services);
             ConfigureGateways(services);
             ConfigureUseCases(services);
             ConfigureEntry(services);
@@ -31,6 +33,7 @@ namespace HfsChargesContainer
             return this;
         }
 
+        #region Environmnent and options
         public string GetConnectionString()
         {
             string dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? throw new ArgumentNullException(nameof(dbHost));
@@ -45,7 +48,19 @@ namespace HfsChargesContainer
             => Environment.GetEnvironmentVariable("GOOGLE_API_KEY")
             ?? throw new ArgumentNullException("Google Cloud credentials are missing.");
 
-        public void ConfigureStorageInterfaces(IServiceCollection services)
+        public string GetChargesBatchYears()
+            => Environment.GetEnvironmentVariable("CHARGES_BATCH_YEARS")
+            ?? throw new ArgumentNullException("Charges Batch Years are missing.");
+
+        public void ConfigureOptions(IServiceCollection services)
+        {
+            var chargesBatchYears = GetChargesBatchYears();
+
+            services.AddScoped(_ => new ChargesBatchYearsOptions(chargesBatchYears));
+        }
+        #endregion
+        #region External Storage
+        public void ConfigureDatabase(IServiceCollection services)
         {
             var hfsDbConnectionString = GetConnectionString();
 
@@ -80,15 +95,18 @@ namespace HfsChargesContainer
             services.AddScoped(sp => new SheetsService(baseClientService));
             services.AddScoped<IGoogleClientService, GoogleClientService>();
         }
+        #endregion
 
         public void ConfigureGateways(IServiceCollection services)
         {
             services.AddScoped<IHousingFinanceGateway, HousingFinanceGateway>();
+            services.AddScoped<IChargesBatchYearsGateway, ChargesBatchYearsGateway>();
         }
 
         public void ConfigureUseCases(IServiceCollection services)
         {
             services.AddScoped<IUseCase1, UseCase1>();
+            services.AddScoped<ICheckChargesBatchYearsUseCase, CheckChargesBatchYearsUseCase>();
         }
 
         public void ConfigureEntry(IServiceCollection services)

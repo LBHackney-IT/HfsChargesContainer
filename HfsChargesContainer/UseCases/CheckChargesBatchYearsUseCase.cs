@@ -1,4 +1,5 @@
 using HfsChargesContainer.Gateways.Interfaces;
+using HfsChargesContainer.Options;
 using HfsChargesContainer.UseCases.Interfaces;
 
 namespace HfsChargesContainer.UseCases
@@ -6,12 +7,15 @@ namespace HfsChargesContainer.UseCases
     public class CheckChargesBatchYearsUseCase : ICheckChargesBatchYearsUseCase
     {
         private readonly IChargesBatchYearsGateway _chargesBatchYearsGateway;
-        // TODO: Move the Environment Variable out to start up vvvv
-        private readonly string _chargesBatchYears = Environment.GetEnvironmentVariable("CHARGES_BATCH_YEARS");
+        private readonly string _chargesBatchYears;
 
-        public CheckChargesBatchYearsUseCase(IChargesBatchYearsGateway chargesBatchYearsGateway)
+        public CheckChargesBatchYearsUseCase(
+            IChargesBatchYearsGateway chargesBatchYearsGateway,
+            ChargesBatchYearsOptions chargesBatchYearsOptions
+        )
         {
             _chargesBatchYearsGateway = chargesBatchYearsGateway;
+            _chargesBatchYears = chargesBatchYearsOptions.ChargesBatchYears;
         }
 
         public async Task<bool> ExecuteAsync()
