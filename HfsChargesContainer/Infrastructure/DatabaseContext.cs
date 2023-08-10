@@ -17,5 +17,32 @@ namespace HfsChargesContainer.Infrastructure
         public DbSet<BatchLogError> BatchLogErrors { get; set; }
         public DbSet<ChargesBatchYear> ChargesBatchYears { get; set; }
         public DbSet<GoogleFileSetting> GoogleFileSettings { get; set; }
+
+        public async Task LoadCharges()
+            => await PerformTransaction($"usp_LoadCharges", 300).ConfigureAwait(false);
+
+        public async Task TruncateChargesAuxiliary()
+        {
+            var sql = "DELETE FROM ChargesAux";
+            await PerformTransaction(sql).ConfigureAwait(false);
+        }
+
+        private async Task PerformTransaction(string sql, int timeout = 0)
+        {
+            await using var transaction = await Database.BeginTransactionAsync().ConfigureAwait(false);
+
+            try
+            {
+                if (timeout != 0)
+                    Database.SetCommandTimeout(timeout);
+                await Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false);
+                await transaction.CommitAsync().ConfigureAwait(false);
+            }
+            catch
+            {
+                await transaction.RollbackAsync().ConfigureAwait(false);
+                throw;
+            }
+        }
     }
 }
