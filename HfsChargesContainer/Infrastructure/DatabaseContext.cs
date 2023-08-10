@@ -16,5 +16,6 @@ namespace HfsChargesContainer.Infrastructure
         public DbSet<BatchLog> BatchLogs { get; set; }
         public DbSet<BatchLogError> BatchLogErrors { get; set; }
         public DbSet<ChargesBatchYear> ChargesBatchYears { get; set; }
+        public DbSet<GoogleFileSetting> GoogleFileSettings { get; set; }
     }
 }
