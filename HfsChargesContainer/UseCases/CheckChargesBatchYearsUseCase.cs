@@ -31,7 +31,7 @@ namespace HfsChargesContainer.UseCases
             }
 
             var pendingYear = await _chargesBatchYearsGateway.GetPendingYear().ConfigureAwait(false);
-            var continueProcess = pendingYear is not null; 
+            var continueProcess = pendingYear is not null;
 
             return continueProcess;
         }

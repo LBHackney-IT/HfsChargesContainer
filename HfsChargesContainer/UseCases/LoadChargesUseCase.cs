@@ -61,7 +61,7 @@ namespace HfsChargesContainer.UseCases
                             continue;
                         }
 
-                        await HandleSpreadSheet(batch.Id, chargesAux, sheetName.ToString(), (int) googleFile.FileYear).ConfigureAwait(false);
+                        await HandleSpreadSheet(batch.Id, chargesAux, sheetName.ToString(), (int)googleFile.FileYear).ConfigureAwait(false);
                     }
                 }
             }
