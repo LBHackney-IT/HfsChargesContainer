@@ -24,7 +24,7 @@ namespace HfsChargesContainer
         {
             var services = this.ServiceCollection;
             ConfigureOptions(services);
-            ConfigureDatabase(services);
+            ConfigureDatabaseContext(services);
             ConfigureGateways(services);
             ConfigureUseCases(services);
             ConfigureEntry(services);
@@ -33,40 +33,38 @@ namespace HfsChargesContainer
             return this;
         }
 
-        #region Environmnent and options
-        public string GetConnectionString()
+        public IEntry Build<TEntry>() where TEntry : IEntry
         {
-            string dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? throw new ArgumentNullException(nameof(dbHost));
-            string dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? throw new ArgumentNullException(nameof(dbName));
-            string dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? throw new ArgumentNullException(nameof(dbUser));
-            string dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? throw new ArgumentNullException(nameof(dbPassword));
-
-            return $"Data Source={dbHost},1433;Initial Catalog={dbName};Integrated Security=False;User Id={dbUser};Password={dbPassword};Encrypt=False;TrustServerCertificate=False;MultipleActiveResultSets=True;";
+            var serviceProvider = this.ServiceCollection.BuildServiceProvider();
+            return serviceProvider.GetRequiredService<TEntry>();
         }
 
-        public string GetGCPJsonCredentials()
-            => Environment.GetEnvironmentVariable("GOOGLE_API_KEY")
-            ?? throw new ArgumentNullException("Google Cloud credentials are missing.");
-
-        public string GetChargesBatchYears()
-            => Environment.GetEnvironmentVariable("CHARGES_BATCH_YEARS")
-            ?? throw new ArgumentNullException("Charges Batch Years are missing.");
-
-        public string GetBatchSize()
-            => Environment.GetEnvironmentVariable("BATCH_SIZE")
-            ?? throw new ArgumentNullException("Batch Size is missing.");
-
-        public void ConfigureOptions(IServiceCollection services)
+        public void ConfigureEntry(IServiceCollection services)
         {
-            var chargesBatchYears = GetChargesBatchYears();
-            var chargesBulkInsertBatchSize = Convert.ToInt32(GetBatchSize());
-
-            services.AddScoped(_ => new ChargesBatchYearsOptions(chargesBatchYears));
-            services.AddScoped(_ => new ChargesGWOptions(chargesBulkInsertBatchSize));
+            services.AddScoped<ProcessEntryPoint>();
         }
-        #endregion
-        #region External Storage
-        public void ConfigureDatabase(IServiceCollection services)
+
+        public void ConfigureUseCases(IServiceCollection services)
+        {
+            services.AddScoped<IUseCase1, UseCase1>();
+            services.AddScoped<ILoadChargesUseCase, LoadChargesUseCase>();
+            services.AddScoped<ICheckChargesBatchYearsUseCase, CheckChargesBatchYearsUseCase>();
+        }
+
+        public void ConfigureGateways(IServiceCollection services)
+        {
+            services.AddScoped<IChargesGateway, ChargesGateway>();
+            services.AddScoped<IBatchLogGateway, BatchLogGateway>();
+            services.AddScoped<IGoogleClientService, GoogleClientService>();
+            services.AddScoped<IBatchLogErrorGateway, BatchLogErrorGateway>();
+            services.AddScoped<IHousingFinanceGateway, HousingFinanceGateway>();
+            services.AddScoped<IChargesBatchYearsGateway, ChargesBatchYearsGateway>();
+            services.AddScoped<IChargesBatchYearsGateway, ChargesBatchYearsGateway>();
+            services.AddScoped<IGoogleFileSettingGateway, GoogleFileSettingGateway>();
+        }
+
+        #region External Storage Interfaces
+        public void ConfigureDatabaseContext(IServiceCollection services)
         {
             var hfsDbConnectionString = GetConnectionString();
 
@@ -103,34 +101,33 @@ namespace HfsChargesContainer
         }
         #endregion
 
-        public void ConfigureGateways(IServiceCollection services)
+        #region Environmnent and options
+        public void ConfigureOptions(IServiceCollection services)
         {
-            services.AddScoped<IChargesGateway, ChargesGateway>();
-            services.AddScoped<IBatchLogGateway, BatchLogGateway>();
-            services.AddScoped<IGoogleClientService, GoogleClientService>();
-            services.AddScoped<IBatchLogErrorGateway, BatchLogErrorGateway>();
-            services.AddScoped<IHousingFinanceGateway, HousingFinanceGateway>();
-            services.AddScoped<IChargesBatchYearsGateway, ChargesBatchYearsGateway>();
-            services.AddScoped<IChargesBatchYearsGateway, ChargesBatchYearsGateway>();
-            services.AddScoped<IGoogleFileSettingGateway, GoogleFileSettingGateway>();
+            var chargesBatchYears = GetChargesBatchYears();
+            var chargesBulkInsertBatchSize = Convert.ToInt32(GetBatchSize());
+
+            services.AddScoped(_ => new ChargesBatchYearsOptions(chargesBatchYears));
+            services.AddScoped(_ => new ChargesGWOptions(chargesBulkInsertBatchSize));
         }
 
-        public void ConfigureUseCases(IServiceCollection services)
+        public string GetEnvVarOrThrow(string envVarName, string errorMsgIfMissing)
+            => Environment.GetEnvironmentVariable(envVarName)
+            ?? throw new ArgumentNullException(errorMsgIfMissing);
+
+        public string GetConnectionString()
         {
-            services.AddScoped<IUseCase1, UseCase1>();
-            services.AddScoped<ILoadChargesUseCase, LoadChargesUseCase>();
-            services.AddScoped<ICheckChargesBatchYearsUseCase, CheckChargesBatchYearsUseCase>();
+            string dbHost = GetEnvVarOrThrow("DB_HOST", nameof(dbHost));
+            string dbName = GetEnvVarOrThrow("DB_NAME", nameof(dbName));
+            string dbUser = GetEnvVarOrThrow("DB_USER", nameof(dbUser));
+            string dbPassword = GetEnvVarOrThrow("DB_PASSWORD", nameof(dbPassword));
+
+            return $"Data Source={dbHost},1433;Initial Catalog={dbName};Integrated Security=False;User Id={dbUser};Password={dbPassword};Encrypt=False;TrustServerCertificate=False;MultipleActiveResultSets=True;";
         }
 
-        public void ConfigureEntry(IServiceCollection services)
-        {
-            services.AddScoped<ProcessEntryPoint>();
-        }
-
-        public IEntry Build<TEntry>() where TEntry : IEntry
-        {
-            var serviceProvider = this.ServiceCollection.BuildServiceProvider();
-            return serviceProvider.GetRequiredService<TEntry>();
-        }
+        public string GetGCPJsonCredentials() => GetEnvVarOrThrow("GOOGLE_API_KEY", "Google Cloud credentials are missing.");
+        public string GetChargesBatchYears() => GetEnvVarOrThrow("CHARGES_BATCH_YEARS", "Charges Batch Years are missing.");
+        public string GetBatchSize() => GetEnvVarOrThrow("BATCH_SIZE", "Batch Size is missing.");
+        #endregion
     }
 }
