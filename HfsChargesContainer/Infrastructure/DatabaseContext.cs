@@ -9,9 +9,10 @@ namespace HfsChargesContainer.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<WeeksByYear>().HasNoKey();//.ToView(null);
+            modelBuilder.Entity<WeeksByYear>().HasNoKey();
         }
 
         public DbSet<WeeksByYear> WeeksByYear { get; set; }
+        public DbSet<ChargesBatchYear> ChargesBatchYears { get; set; }
     }
 }
