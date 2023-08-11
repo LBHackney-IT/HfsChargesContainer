@@ -22,6 +22,9 @@ namespace HfsChargesContainer.Infrastructure
         public async Task LoadCharges()
             => await PerformTransaction($"usp_LoadCharges", 300).ConfigureAwait(false);
 
+        public async Task LoadChargesTransactions(int @processingYear)
+            => await PerformInterpolatedTransaction($"usp_LoadTransactionsCharges {@processingYear}", 900).ConfigureAwait(false);
+
         public async Task LoadChargesHistory(int @processingYear)
             => await PerformInterpolatedTransaction($"usp_LoadChargesHistory {@processingYear}", 600).ConfigureAwait(false);
 
