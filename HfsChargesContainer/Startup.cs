@@ -48,6 +48,7 @@ namespace HfsChargesContainer
         {
             services.AddScoped<IUseCase1, UseCase1>();
             services.AddScoped<ILoadChargesUseCase, LoadChargesUseCase>();
+            services.AddScoped<ILoadChargesHistoryUseCase, LoadChargesHistoryUseCase>();
             services.AddScoped<ICheckChargesBatchYearsUseCase, CheckChargesBatchYearsUseCase>();
         }
 

@@ -6,16 +6,19 @@ namespace HfsChargesContainer
     {
         private readonly IUseCase1 _useCase1;
         private readonly ILoadChargesUseCase _loadChargesUseCase;
+        private readonly ILoadChargesHistoryUseCase _loadChargesHistoryUseCase;
         private readonly ICheckChargesBatchYearsUseCase _checkChargesBatchYearsUseCase;
 
         public ProcessEntryPoint(
             IUseCase1 useCase1,
             ILoadChargesUseCase loadChargesUseCase,
+            ILoadChargesHistoryUseCase loadChargesHistoryUseCase,
             ICheckChargesBatchYearsUseCase checkChargesBatchYearsUseCase
         )
         {
             _useCase1 = useCase1;
             _loadChargesUseCase = loadChargesUseCase;
+            _loadChargesHistoryUseCase = loadChargesHistoryUseCase;
             _checkChargesBatchYearsUseCase = checkChargesBatchYearsUseCase;
         }
         public async Task Run()
@@ -29,6 +32,8 @@ namespace HfsChargesContainer
             Console.WriteLine("Executing LoadChargesUC.");
             var continueToChargesHistory = await _loadChargesUseCase.ExecuteAsync();
             Console.WriteLine($"Continue to CH? {continueToChargesHistory}");
+            Console.WriteLine("Executing LoadChargesHistoryUC.");
+            await _loadChargesHistoryUseCase.ExecuteAsync();
         }
     }
 }
