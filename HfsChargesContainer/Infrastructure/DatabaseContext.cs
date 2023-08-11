@@ -20,14 +20,13 @@ namespace HfsChargesContainer.Infrastructure
         public DbSet<GoogleFileSetting> GoogleFileSettings { get; set; }
 
         public async Task LoadCharges()
-            => await PerformTransaction($"usp_LoadCharges", 300).ConfigureAwait(false);
+            => await PerformTransaction($"usp_LoadCharges").ConfigureAwait(false);
 
-        // TODO: Remove timeout
         public async Task LoadChargesTransactions(int @processingYear)
-            => await PerformInterpolatedTransaction($"usp_LoadTransactionsCharges {@processingYear}", 900).ConfigureAwait(false);
+            => await PerformInterpolatedTransaction($"usp_LoadTransactionsCharges {@processingYear}").ConfigureAwait(false);
 
         public async Task LoadChargesHistory(int @processingYear)
-            => await PerformInterpolatedTransaction($"usp_LoadChargesHistory {@processingYear}", 600).ConfigureAwait(false);
+            => await PerformInterpolatedTransaction($"usp_LoadChargesHistory {@processingYear}").ConfigureAwait(false);
 
         public async Task TruncateChargesAuxiliary()
         {
