@@ -49,6 +49,7 @@ namespace HfsChargesContainer
             services.AddScoped<IUseCase1, UseCase1>();
             services.AddScoped<ILoadChargesUseCase, LoadChargesUseCase>();
             services.AddScoped<ILoadChargesHistoryUseCase, LoadChargesHistoryUseCase>();
+            services.AddScoped<ILoadChargesTransactionsUseCase, LoadChargesTransactionsUseCase>();
             services.AddScoped<ICheckChargesBatchYearsUseCase, CheckChargesBatchYearsUseCase>();
         }
 
@@ -56,6 +57,7 @@ namespace HfsChargesContainer
         {
             services.AddScoped<IChargesGateway, ChargesGateway>();
             services.AddScoped<IBatchLogGateway, BatchLogGateway>();
+            services.AddScoped<ITransactionGateway, TransactionGateway>();
             services.AddScoped<IGoogleClientService, GoogleClientService>();
             services.AddScoped<IBatchLogErrorGateway, BatchLogErrorGateway>();
             services.AddScoped<IHousingFinanceGateway, HousingFinanceGateway>();

@@ -22,6 +22,7 @@ namespace HfsChargesContainer.Infrastructure
         public async Task LoadCharges()
             => await PerformTransaction($"usp_LoadCharges", 300).ConfigureAwait(false);
 
+        // TODO: Remove timeout
         public async Task LoadChargesTransactions(int @processingYear)
             => await PerformInterpolatedTransaction($"usp_LoadTransactionsCharges {@processingYear}", 900).ConfigureAwait(false);
 
