@@ -115,5 +115,19 @@ namespace HfsChargesContainer.Gateways
                 throw;
             }
         }
+
+        public async Task LoadChargesHistory(int processingYear)
+        {
+            try
+            {
+                await _context.LoadChargesHistory(processingYear).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                LoggingHandler.LogError(e.Message);
+                LoggingHandler.LogError(e.StackTrace);
+                throw;
+            }
+        }
     }
 }

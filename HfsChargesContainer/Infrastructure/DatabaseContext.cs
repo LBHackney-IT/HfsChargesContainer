@@ -22,6 +22,9 @@ namespace HfsChargesContainer.Infrastructure
         public async Task LoadCharges()
             => await PerformTransaction($"usp_LoadCharges", 300).ConfigureAwait(false);
 
+        public async Task LoadChargesHistory(int @processingYear)
+            => await PerformInterpolatedTransaction($"usp_LoadChargesHistory {@processingYear}", 600).ConfigureAwait(false);
+
         public async Task TruncateChargesAuxiliary()
         {
             var sql = "DELETE FROM ChargesAux";
@@ -37,6 +40,24 @@ namespace HfsChargesContainer.Infrastructure
                 if (timeout != 0)
                     Database.SetCommandTimeout(timeout);
                 await Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false);
+                await transaction.CommitAsync().ConfigureAwait(false);
+            }
+            catch
+            {
+                await transaction.RollbackAsync().ConfigureAwait(false);
+                throw;
+            }
+        }
+
+        private async Task PerformInterpolatedTransaction(FormattableString sql, int timeout = 0)
+        {
+            await using var transaction = await Database.BeginTransactionAsync().ConfigureAwait(false);
+
+            try
+            {
+                if (timeout != 0)
+                    Database.SetCommandTimeout(timeout);
+                await Database.ExecuteSqlInterpolatedAsync(sql).ConfigureAwait(false);
                 await transaction.CommitAsync().ConfigureAwait(false);
             }
             catch
