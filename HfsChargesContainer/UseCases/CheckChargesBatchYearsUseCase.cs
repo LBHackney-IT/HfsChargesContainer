@@ -1,4 +1,5 @@
 using HfsChargesContainer.Gateways.Interfaces;
+using HfsChargesContainer.Helpers;
 using HfsChargesContainer.Options;
 using HfsChargesContainer.UseCases.Interfaces;
 
@@ -32,6 +33,11 @@ namespace HfsChargesContainer.UseCases
 
             var pendingYear = await _chargesBatchYearsGateway.GetPendingYear().ConfigureAwait(false);
             var continueProcess = pendingYear is not null;
+
+            LoggingHandler.LogInfo(continueProcess
+                ? $"Financial year to be processed is: {pendingYear.Year}."
+                : $"All the today's pending financial years have already been processed."
+            );
 
             return continueProcess;
         }
