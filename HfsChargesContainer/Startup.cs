@@ -46,7 +46,6 @@ namespace HfsChargesContainer
 
         public void ConfigureUseCases(IServiceCollection services)
         {
-            services.AddScoped<IUseCase1, UseCase1>();
             services.AddScoped<ILoadChargesUseCase, LoadChargesUseCase>();
             services.AddScoped<ILoadChargesHistoryUseCase, LoadChargesHistoryUseCase>();
             services.AddScoped<ILoadChargesTransactionsUseCase, LoadChargesTransactionsUseCase>();

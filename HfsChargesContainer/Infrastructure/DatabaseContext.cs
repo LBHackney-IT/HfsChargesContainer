@@ -9,11 +9,9 @@ namespace HfsChargesContainer.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<WeeksByYear>().HasNoKey();
             modelBuilder.Entity<ChargesAux>().Property(x => x.TimeStamp).HasDefaultValueSql("GETDATE()");
         }
 
-        public DbSet<WeeksByYear> WeeksByYear { get; set; }
         public DbSet<BatchLog> BatchLogs { get; set; }
         public DbSet<BatchLogError> BatchLogErrors { get; set; }
         public DbSet<ChargesBatchYear> ChargesBatchYears { get; set; }
