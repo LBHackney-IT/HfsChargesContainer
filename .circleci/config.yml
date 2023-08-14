@@ -57,7 +57,7 @@ commands:
             docker build -t ${ECR_NAME} HfsChargesContainer
 #TODO: Make the ^^^ a job parameter
       - run:
-          name: Docker stuff
+          name: Tag and Deploy to ECR
           command: |
             ENVIRONMENT=<<parameters.environment>>
             CHARGES_ECR_URL_SSM_KEY="/housing/${ENVIRONMENT}/ecr-url"
@@ -124,6 +124,9 @@ workflows:
           context: api-assume-role-housing-development-context
           requires:
               - permit-deployment
+          filters:
+            branches:
+              only: main
       - deploy-to-development:
           requires:
               - assume-role-development
