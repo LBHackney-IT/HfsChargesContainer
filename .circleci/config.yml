@@ -119,10 +119,16 @@ jobs:
 workflows:
   check-and-deploy-development:
     jobs:
-      - check-code-formatting
+      - check-code-formatting:
+          filters:
+            branches:
+              ignore: release
       - run-automated-tests:
           requires:
             - check-code-formatting
+          filters:
+            branches:
+              ignore: release
       - permit-deployment:
           type: approval
           requires:
