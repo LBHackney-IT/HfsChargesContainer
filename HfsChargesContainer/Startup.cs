@@ -59,7 +59,6 @@ namespace HfsChargesContainer
             services.AddScoped<ITransactionGateway, TransactionGateway>();
             services.AddScoped<IGoogleClientService, GoogleClientService>();
             services.AddScoped<IBatchLogErrorGateway, BatchLogErrorGateway>();
-            services.AddScoped<IHousingFinanceGateway, HousingFinanceGateway>();
             services.AddScoped<IChargesBatchYearsGateway, ChargesBatchYearsGateway>();
             services.AddScoped<IChargesBatchYearsGateway, ChargesBatchYearsGateway>();
             services.AddScoped<IGoogleFileSettingGateway, GoogleFileSettingGateway>();
