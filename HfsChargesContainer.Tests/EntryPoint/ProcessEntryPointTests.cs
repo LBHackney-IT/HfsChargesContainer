@@ -150,7 +150,6 @@ public class ProcessEntryPointTests
         _loadChargesHistoryUCMock
             .Setup(u => u.ExecuteAsync())
             .Callback(action);
-            // should i tbe async? async () => {...}
 
         // act
         await PreventExceptionBubble(async () => await _classUnderTest.Run());
@@ -172,7 +171,8 @@ public class ProcessEntryPointTests
 
     private Func<bool> ProcessedYearCheckCallback(Queue<int> financialYearQueue)
     {
-        return () => {
+        return () =>
+        {
             var isThereYearToProcess = financialYearQueue.Count > 0;
 
             if (isThereYearToProcess)

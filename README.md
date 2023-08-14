@@ -12,6 +12,8 @@ The deployment bit of this repository's pipeline merely builds & deploys the app
 
 The EC2 Task definition within the AWS is configured to point to the 'latest' image within an ECR. Therefore upon the Task _(based on the Task definition)_ getting created due to the cron trigger, the Task should be always pointing to the latest ECR image.
 
+The `main` branch represents the `development` environment, while the `release` branch is for `staging` and `production` environments. The release to `production` environment is behind the manual 'permit' button that appears after deployment to `staging` is complete.
+
 # Running
 This application is supposed to run as docker container.
 1. Create a copy of `.env.sample` and then populated with the required values.
