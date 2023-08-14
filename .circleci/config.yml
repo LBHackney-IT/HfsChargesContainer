@@ -55,7 +55,6 @@ commands:
             ECR_NAME=$(aws ssm get-parameter --name ${CHARGES_ECR_NAME_SSM_KEY} --region "eu-west-2" --query Parameter.Value --output text)
 
             docker build -t ${ECR_NAME} HfsChargesContainer
-#TODO: Make the ^^^ a job parameter
       - run:
           name: Tag and Deploy to ECR
           command: |
@@ -105,6 +104,11 @@ jobs:
     steps:
       - assume-role-and-persist-workspace:
           aws-account: $AWS_ACCOUNT_STAGING
+  assume-role-production:
+    executor: docker-python
+    steps:
+      - assume-role-and-persist-workspace:
+          aws-account: $AWS_ACCOUNT_PRODUCTION
   deploy-to-development:
     executor: cci-aws
     steps:
@@ -115,6 +119,11 @@ jobs:
     steps:
       - deploy-image:
           environment: "staging"
+  deploy-to-production:
+    executor: docker-dotnet
+    steps:
+      - deploy-image:
+          environment: "production"
 
 workflows:
   check-and-deploy-development:
@@ -171,6 +180,26 @@ workflows:
       - deploy-to-staging:
           requires:
             - assume-role-staging
+          filters:
+            branches:
+              only: release
+      - permit-production-release:
+          type: approval
+          requires:
+            - deploy-to-staging
+          filters:
+            branches:
+              only: release
+      - assume-role-production:
+          context: api-assume-role-housing-production-context
+          requires:
+            - permit-production-release
+          filters:
+             branches:
+               only: release
+      - deploy-to-production:
+          requires:
+            - assume-role-production
           filters:
             branches:
               only: release
