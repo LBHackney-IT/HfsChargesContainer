@@ -35,7 +35,7 @@ namespace HfsChargesContainer.UseCases
             var continueProcess = pendingYear is not null;
 
             LoggingHandler.LogInfo(continueProcess
-                ? $"Financial year to be processed is: {pendingYear.Year}."
+                ? $"Starting to process the: {pendingYear.Year} Financial year."
                 : $"All the today's pending financial years have already been processed."
             );
 
