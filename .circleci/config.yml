@@ -100,11 +100,21 @@ jobs:
     steps:
       - assume-role-and-persist-workspace:
           aws-account: $AWS_ACCOUNT_DEVELOPMENT
+  assume-role-staging:
+    executor: docker-python
+    steps:
+      - assume-role-and-persist-workspace:
+          aws-account: $AWS_ACCOUNT_STAGING
   deploy-to-development:
     executor: cci-aws
     steps:
       - deploy-image:
           environment: "development"
+  deploy-to-staging:
+    executor: docker-dotnet
+    steps:
+      - deploy-image:
+          environment: "staging"
 
 workflows:
   check-and-deploy-development:
@@ -133,3 +143,28 @@ workflows:
           filters:
             branches:
               only: main
+  check-and-deploy-staging-and-production:
+      jobs:
+      - check-code-formatting:
+          filters:
+            branches:
+              only: release
+      - run-automated-tests:
+          requires:
+            - check-code-formatting
+          filters:
+            branches:
+              only: release
+      - assume-role-staging:
+          context: api-assume-role-housing-staging-context
+          requires:
+            - run-automated-tests
+          filters:
+            branches:
+              only: release
+      - deploy-to-staging:
+          requires:
+            - assume-role-staging
+          filters:
+            branches:
+              only: release
