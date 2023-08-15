@@ -55,9 +55,8 @@ commands:
             ECR_NAME=$(aws ssm get-parameter --name ${CHARGES_ECR_NAME_SSM_KEY} --region "eu-west-2" --query Parameter.Value --output text)
 
             docker build -t ${ECR_NAME} HfsChargesContainer
-#TODO: Make the ^^^ a job parameter
       - run:
-          name: Docker stuff
+          name: Tag and Deploy to ECR
           command: |
             ENVIRONMENT=<<parameters.environment>>
             CHARGES_ECR_URL_SSM_KEY="/housing/${ENVIRONMENT}/ecr-url"
@@ -100,19 +99,45 @@ jobs:
     steps:
       - assume-role-and-persist-workspace:
           aws-account: $AWS_ACCOUNT_DEVELOPMENT
+  assume-role-staging:
+    executor: docker-python
+    steps:
+      - assume-role-and-persist-workspace:
+          aws-account: $AWS_ACCOUNT_STAGING
+  assume-role-production:
+    executor: docker-python
+    steps:
+      - assume-role-and-persist-workspace:
+          aws-account: $AWS_ACCOUNT_PRODUCTION
   deploy-to-development:
     executor: cci-aws
     steps:
       - deploy-image:
           environment: "development"
+  deploy-to-staging:
+    executor: docker-dotnet
+    steps:
+      - deploy-image:
+          environment: "staging"
+  deploy-to-production:
+    executor: docker-dotnet
+    steps:
+      - deploy-image:
+          environment: "production"
 
 workflows:
   check-and-deploy-development:
     jobs:
-      - check-code-formatting
+      - check-code-formatting:
+          filters:
+            branches:
+              ignore: release
       - run-automated-tests:
           requires:
             - check-code-formatting
+          filters:
+            branches:
+              ignore: release
       - permit-deployment:
           type: approval
           requires:
@@ -124,9 +149,57 @@ workflows:
           context: api-assume-role-housing-development-context
           requires:
               - permit-deployment
+          filters:
+            branches:
+              only: main
       - deploy-to-development:
           requires:
               - assume-role-development
           filters:
             branches:
               only: main
+  check-and-deploy-staging-and-production:
+      jobs:
+      - check-code-formatting:
+          filters:
+            branches:
+              only: release
+      - run-automated-tests:
+          requires:
+            - check-code-formatting
+          filters:
+            branches:
+              only: release
+      - assume-role-staging:
+          context: api-assume-role-housing-staging-context
+          requires:
+            - run-automated-tests
+          filters:
+            branches:
+              only: release
+      - deploy-to-staging:
+          requires:
+            - assume-role-staging
+          filters:
+            branches:
+              only: release
+      - permit-production-release:
+          type: approval
+          requires:
+            - deploy-to-staging
+          filters:
+            branches:
+              only: release
+      - assume-role-production:
+          context: api-assume-role-housing-production-context
+          requires:
+            - permit-production-release
+          filters:
+             branches:
+               only: release
+      - deploy-to-production:
+          requires:
+            - assume-role-production
+          filters:
+            branches:
+              only: release

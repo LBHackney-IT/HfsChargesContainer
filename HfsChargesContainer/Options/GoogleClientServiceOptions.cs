@@ -1,6 +1,4 @@
-using System.Collections.Generic;
-
-namespace HfsChargesContainer.Infrastructure
+namespace HfsChargesContainer.Options
 {
     public class GoogleClientServiceOptions
     {
