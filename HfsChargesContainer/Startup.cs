@@ -73,7 +73,7 @@ namespace HfsChargesContainer
                 opt.UseSqlServer(hfsDbConnectionString, sqlOptions =>
                 {
                     // If not provided, the default is 30, but we need 0, which means 'no timeout'.
-                    sqlOptions.CommandTimeout(0);
+                    sqlOptions.CommandTimeout(10000);
                 })
             );
         }
