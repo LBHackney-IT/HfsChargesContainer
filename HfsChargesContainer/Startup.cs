@@ -72,7 +72,9 @@ namespace HfsChargesContainer
             services.AddDbContext<DatabaseContext>(opt =>
                 opt.UseSqlServer(hfsDbConnectionString, sqlOptions =>
                 {
-                    sqlOptions.CommandTimeout(360);
+                    // The '0' for infinite timeout is not allowed even though documentation
+                    // says the opposite. So setting it to 2 hours instead. 
+                    sqlOptions.CommandTimeout(7200);
                 })
             );
         }
