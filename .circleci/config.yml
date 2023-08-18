@@ -110,8 +110,6 @@ workflows:
     jobs:
       - assume-role-development:
           context: api-assume-role-housing-development-context
-          requires:
-              - permit-deployment
           filters:
             branches:
               only: dummy-connection-timeout-test
