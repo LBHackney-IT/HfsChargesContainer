@@ -13,7 +13,7 @@ Console.WriteLine("Application started!\nConfiguring the Start up!");
 // await entryPoint.Run();
 
 // Console.Error.WriteLine("Test Error Log Behaviour");
-Console.WriteLine(Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID")?.Substring(0,4));
+Console.WriteLine($"**{Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID")?.Substring(0,4)}**");
 
 string topicId = Environment.GetEnvironmentVariable("TOPIC_ARN");
 
