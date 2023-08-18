@@ -18,16 +18,20 @@ catch (Exception ex)
 {
     LoggingHandler.LogError("An exception was caught at the program root level.");
 
-    string environment = Environment.GetEnvironmentVariable("ENVIRONMENT")
-        ?? throw new ArgumentNullException(nameof(environment));
+    string? environment = Environment.GetEnvironmentVariable("ENVIRONMENT");
+
+    if (environment is null)
+        LoggingHandler.LogError($"Unset environment variable: '${nameof(environment)}'!");
 
     if (environment == "local")
         throw;
 
     LoggingHandler.LogError("Attempting to send out an SNS Nofication alert.");
 
-    await EmailAlertsHandler.SendEmailAlert(ex, environment);
+    await EmailAlertsHandler.TrySendEmailAlert(ex, environment);
 
-    // Throw to get the exception logged with the stack trace.
+    LoggingHandler.LogError("\nApplication exception:\n");
+
+    // Throw to get exception logged.
     throw;
 }
