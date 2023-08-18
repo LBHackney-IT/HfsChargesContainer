@@ -99,52 +99,15 @@ jobs:
     steps:
       - assume-role-and-persist-workspace:
           aws-account: $AWS_ACCOUNT_DEVELOPMENT
-  assume-role-staging:
-    executor: docker-python
-    steps:
-      - assume-role-and-persist-workspace:
-          aws-account: $AWS_ACCOUNT_STAGING
-  assume-role-production:
-    executor: docker-python
-    steps:
-      - assume-role-and-persist-workspace:
-          aws-account: $AWS_ACCOUNT_PRODUCTION
   deploy-to-development:
     executor: cci-aws
     steps:
       - deploy-image:
           environment: "development"
-  deploy-to-staging:
-    executor: docker-dotnet
-    steps:
-      - deploy-image:
-          environment: "staging"
-  deploy-to-production:
-    executor: docker-dotnet
-    steps:
-      - deploy-image:
-          environment: "production"
 
 workflows:
   check-and-deploy-development:
     jobs:
-      - check-code-formatting:
-          filters:
-            branches:
-              ignore: release
-      - run-automated-tests:
-          requires:
-            - check-code-formatting
-          filters:
-            branches:
-              ignore: release
-      - permit-deployment:
-          type: approval
-          requires:
-            - run-automated-tests
-          filters:
-            branches:
-              only: dummy-connection-timeout-test
       - assume-role-development:
           context: api-assume-role-housing-development-context
           requires:
