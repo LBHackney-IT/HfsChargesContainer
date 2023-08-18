@@ -6,11 +6,6 @@ using System;
 
 Console.WriteLine("Application started!\nConfiguring the Start up!");
 
-public class PirateLoremIpsumException : Exception
-{
-    public PirateLoremIpsumException(string message) : base(message) {}
-}
-
 try
 {
     string message = @"Testing length and whitespace: Lass Blimey jib square-rigged loot galleon aye long clothes capstan Shiver me timbers. Code of conduct measured fer yer chains pillage overhaul ballast nipper Buccaneer driver Sink me case shot. Barbary Coast sloop Jack Ketch jolly boat loaded to the gunwalls knave heave down mizzenmast mizzen draught.
@@ -48,3 +43,8 @@ catch (Exception ex)
 }
 
 Console.WriteLine("Application finished!");
+
+public class PirateLoremIpsumException : Exception
+{
+    public PirateLoremIpsumException(string message) : base(message) {}
+}
