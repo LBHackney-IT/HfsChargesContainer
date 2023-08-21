@@ -3,16 +3,16 @@ using HfsChargesContainer.Helpers;
 
 try
 {
-    Console.WriteLine("Application started!\nConfiguring the Start up!");
+    LoggingHandler.LogError("Application started!\nConfiguring the Start up!");
 
     var entryPoint = new Startup()
         .ConfigureServices()
         .Build<ProcessEntryPoint>();
 
-    Console.WriteLine("Ready to Run!");
+    LoggingHandler.LogError("Ready to Run!");
     await entryPoint.Run();
 
-    Console.WriteLine("Application finished!");
+    LoggingHandler.LogError("Application finished!");
 }
 catch (Exception ex)
 {
