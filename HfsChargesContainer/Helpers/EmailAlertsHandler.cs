@@ -50,7 +50,7 @@ namespace HfsChargesContainer.Helpers
             {
                 TopicArn = _topicArn,
                 Message = ex.Message,
-                Subject = $"[Warning!] Charges Ingest nightly process failure! [environment: {environment}]"
+                Subject = $"[Error!] Charges Ingest nightly process failure! [environment: {environment}]"
             };
 
             await _asnsClient.PublishAsync(request).ConfigureAwait(false);
