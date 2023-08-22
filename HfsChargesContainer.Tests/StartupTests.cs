@@ -62,5 +62,68 @@ namespace HfsChargesContainer.Tests
             _runtimeEnvVarHandlerMock.Verify(h => h.LoadRuntimeEnvironmentVariables(), Times.Once);
         }
 
+        [Theory]
+        [InlineData("CHARGES_BATCH_YEARS")]
+        [InlineData("BATCH_SIZE")]
+        public void StartupConfigureOptionsThrowsWhenBatchYearsOrBatchSizeEnvVarsAreMissing(string appVarKey)
+        {
+            // arrange
+            // setting these to avoid early failure:
+            Environment.SetEnvironmentVariable("CHARGES_BATCH_YEARS", "2022;2023");
+            Environment.SetEnvironmentVariable("BATCH_SIZE", "250");
+
+            // configuring failure on specific environment variable
+            Environment.SetEnvironmentVariable(appVarKey, null);
+
+            // act
+            Action configureOptions = () => _classUnderTest.ConfigureOptions(_serviceCollection);
+
+            // assert
+            configureOptions.Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void StartupConfigureGoogleClientThrowsWhenGoogleCredentialsAreMissing()
+        {
+            // arrange
+            // setting these to avoid early failure:
+            Environment.SetEnvironmentVariable("CHARGES_BATCH_YEARS", "2022;2023");
+            Environment.SetEnvironmentVariable("BATCH_SIZE", "250");
+
+            // configuring failure on Google Credentials
+            Environment.SetEnvironmentVariable("GOOGLE_API_KEY", null);
+
+            // act
+            Action configureGoogleClient = () => _classUnderTest.ConfigureGoogleClient(_serviceCollection);
+
+            // assert
+            configureGoogleClient.Should().Throw<ArgumentNullException>();
+        }
+
+        [Theory]
+        [InlineData("DB_HOST")]
+        [InlineData("DB_NAME")]
+        [InlineData("DB_USER")]
+        [InlineData("DB_PASSWORD")]
+        public void StartupConfigureDatabaseContextThrowsWhenEitherOfTheDatabaseEnvVarsIsMissing(string appVarKey)
+        {
+            // arrange
+            // setting these to avoid early failure:
+            Environment.SetEnvironmentVariable("CHARGES_BATCH_YEARS", "2022;2023");
+            Environment.SetEnvironmentVariable("BATCH_SIZE", "250");
+            Environment.SetEnvironmentVariable("DB_HOST", "url_to_host");
+            Environment.SetEnvironmentVariable("DB_NAME", "my_db_name");
+            Environment.SetEnvironmentVariable("DB_USER", "my_db_user");
+            Environment.SetEnvironmentVariable("DB_PASSWORD", "secret_password");
+
+            // configuring failure on specific environment variable
+            Environment.SetEnvironmentVariable(appVarKey, null);
+
+            // act
+            Action configureDbContext = () => _classUnderTest.ConfigureDatabaseContext(_serviceCollection);
+
+            // assert
+            configureDbContext.Should().Throw<ArgumentNullException>();
+        }
     }
 }
