@@ -164,5 +164,23 @@ namespace HfsChargesContainer.Tests.Helpers
             // assert
            loadRuntimeVars.Should().Throw<ParameterNotFoundException>().WithMessage($"*{expectedErrorMsg}*");
         }
+
+        [Theory]
+        [InlineData("local")]
+        [InlineData("development")]
+        [InlineData("staging")]
+        [InlineData("production")]
+        public void RuntimeEnvVarsHandlerCorrectlyPopulatesTheSSMKeyNameEnvironmentsUponBeingInitialized(string environment)
+        {
+            // act
+            var runtimeVarHandler = new RuntimeEnvVarsHandler(environment, ssmClient: _ssmClientMock.Object);
+            runtimeVarHandler.LoadRuntimeEnvironmentVariables();
+
+            // assert
+            _ssmClientMock.Verify(h => h.GetParametersAsync(
+                It.Is<GetParametersRequest>(r => r.Names.All(n => n.Contains($"/{environment}/"))),
+                It.IsAny<CancellationToken>()
+            ), Times.Once);
+        }
     }
 }
