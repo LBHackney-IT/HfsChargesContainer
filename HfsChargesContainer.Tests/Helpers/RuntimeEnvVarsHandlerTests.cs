@@ -177,6 +177,17 @@ namespace HfsChargesContainer.Tests.Helpers
         [InlineData("production")]
         public void RuntimeEnvVarsHandlerCorrectlyPopulatesTheSSMKeyNameEnvironmentsUponBeingInitialized(string environment)
         {
+            // arrange
+            _ssmClientMock
+                .Setup(c => c.GetParametersAsync(
+                    It.IsAny<GetParametersRequest>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new GetParametersResponse()
+                {
+                    InvalidParameters = new List<string>(),
+                    Parameters = new List<Parameter>()
+                });
+
             // act
             var runtimeVarHandler = new RuntimeEnvVarsHandler(environment, ssmClient: _ssmClientMock.Object);
             runtimeVarHandler.LoadRuntimeEnvironmentVariables();
