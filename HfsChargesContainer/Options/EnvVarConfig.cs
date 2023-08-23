@@ -15,7 +15,7 @@ namespace HfsChargesContainer.Options
 
         public EnvVarConfig(string environment)
         {
-            EnvVarSSMToAppNameLookup = new ()
+            EnvVarSSMToAppNameLookup = new()
             {
                 { $"/housing-finance/{environment}/charges-batch-years", "CHARGES_BATCH_YEARS" },
                 { $"/housing-finance/{environment}/google-application-credentials-json", "GOOGLE_API_KEY" },

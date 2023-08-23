@@ -20,7 +20,7 @@ namespace HfsChargesContainer.Tests.Helpers
 
         public RuntimeEnvVarsHandlerTests()
         {
-            _ssmToAppKeyLookup = new ()
+            _ssmToAppKeyLookup = new()
             {
                 { "/area-of-service/environment/db-host", "DB_HOST" },
                 { "/nightly-job/environment/google-api-key", "GOOGLE_API_KEY" },
@@ -66,7 +66,8 @@ namespace HfsChargesContainer.Tests.Helpers
             // Clear the environment
             appKeys.ForEach(ak => Environment.SetEnvironmentVariable(ak, null));
 
-            var expectedSSMParams = ssmKeys.Select(sk => new Parameter() {
+            var expectedSSMParams = ssmKeys.Select(sk => new Parameter()
+            {
                 Name = sk,
                 Value = sk.Length.ToString()
             }).ToList();
@@ -75,7 +76,8 @@ namespace HfsChargesContainer.Tests.Helpers
                 .Setup(c => c.GetParametersAsync(
                     It.IsAny<GetParametersRequest>(),
                     It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new GetParametersResponse() {
+                .ReturnsAsync(new GetParametersResponse()
+                {
                     InvalidParameters = new List<string>(),
                     Parameters = expectedSSMParams
                 });
@@ -99,7 +101,8 @@ namespace HfsChargesContainer.Tests.Helpers
             // Clear the environment
             appKeys.ForEach(ak => Environment.SetEnvironmentVariable(ak, null));
 
-            var expectedSSMParams = ssmKeys.Select(sk => new Parameter() {
+            var expectedSSMParams = ssmKeys.Select(sk => new Parameter()
+            {
                 Name = sk,
                 Value = sk.Length.ToString()
             }).ToList();
@@ -108,7 +111,8 @@ namespace HfsChargesContainer.Tests.Helpers
                 .Setup(c => c.GetParametersAsync(
                     It.IsAny<GetParametersRequest>(),
                     It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new GetParametersResponse() {
+                .ReturnsAsync(new GetParametersResponse()
+                {
                     InvalidParameters = new List<string>(),
                     Parameters = expectedSSMParams
                 });
@@ -116,7 +120,7 @@ namespace HfsChargesContainer.Tests.Helpers
             var expectedAppKeyToSSMValMappings = new Dictionary<string, string>();
             expectedSSMParams.ForEach(p => expectedAppKeyToSSMValMappings.Add(_ssmToAppKeyLookup[p.Name], p.Value));
 
-            foreach(var pair in expectedAppKeyToSSMValMappings)
+            foreach (var pair in expectedAppKeyToSSMValMappings)
             {
                 Console.WriteLine($"Key: {pair.Key}; Val={pair.Value}");
             }
@@ -153,7 +157,8 @@ namespace HfsChargesContainer.Tests.Helpers
                 .Setup(c => c.GetParametersAsync(
                     It.IsAny<GetParametersRequest>(),
                     It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new GetParametersResponse() {
+                .ReturnsAsync(new GetParametersResponse()
+                {
                     InvalidParameters = notFoundSSMKeys,
                     Parameters = new List<Parameter>()
                 });
@@ -162,7 +167,7 @@ namespace HfsChargesContainer.Tests.Helpers
             Action loadRuntimeVars = () => _classUnderTest.LoadRuntimeEnvironmentVariables();
 
             // assert
-           loadRuntimeVars.Should().Throw<ParameterNotFoundException>().WithMessage($"*{expectedErrorMsg}*");
+            loadRuntimeVars.Should().Throw<ParameterNotFoundException>().WithMessage($"*{expectedErrorMsg}*");
         }
 
         [Theory]

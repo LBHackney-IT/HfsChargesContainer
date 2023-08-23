@@ -24,7 +24,8 @@ namespace HfsChargesContainer.Helpers
         private GetParametersResponse GetSSMParameters(List<string> ssmKeys)
         {
             var getParamsTask = _ssmClient.GetParametersAsync(
-                new GetParametersRequest {
+                new GetParametersRequest
+                {
                     Names = ssmKeys,
                     WithDecryption = true
                 });
@@ -54,7 +55,8 @@ namespace HfsChargesContainer.Helpers
                     $"The following parameters were not found: {string.Join(", ", ssmParameters.InvalidParameters)}."
                 );
 
-            ssmParameters.Parameters.ForEach(p => {
+            ssmParameters.Parameters.ForEach(p =>
+            {
                 var variableSSMName = p.Name;
                 var variableValue = p.Value;
 
