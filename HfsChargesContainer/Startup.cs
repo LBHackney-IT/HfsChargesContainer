@@ -3,6 +3,8 @@ using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using HfsChargesContainer.Gateways;
 using HfsChargesContainer.Gateways.Interfaces;
+using HfsChargesContainer.Helpers;
+using HfsChargesContainer.Helpers.Interfaces;
 using HfsChargesContainer.Infrastructure;
 using HfsChargesContainer.Options;
 using HfsChargesContainer.UseCases;
@@ -15,14 +17,22 @@ namespace HfsChargesContainer
     public class Startup
     {
         private IServiceCollection ServiceCollection { get; set; }
-        public Startup(IServiceCollection serviceCollection = null)
+        private IRuntimeEnvVarsHandler RuntimeEnvVarsHandler { get; set; }
+
+        public Startup(
+            IServiceCollection? serviceCollection = null,
+            IRuntimeEnvVarsHandler? runtimeEnvVarsHandler = null
+        )
         {
             ServiceCollection = serviceCollection ?? new ServiceCollection();
+            RuntimeEnvVarsHandler = runtimeEnvVarsHandler ?? new RuntimeEnvVarsHandler(GetEnvironment());
         }
 
         public Startup ConfigureServices()
         {
             var services = this.ServiceCollection;
+            ConfigureEnvironment();
+
             ConfigureOptions(services);
             ConfigureDatabaseContext(services);
             ConfigureGateways(services);
@@ -105,6 +115,14 @@ namespace HfsChargesContainer
         #endregion
 
         #region Environmnent and options
+        public void ConfigureEnvironment()
+        {
+            if (IsLocalEnvironment())
+                return;
+
+            RuntimeEnvVarsHandler.LoadRuntimeEnvironmentVariables();
+        }
+
         public void ConfigureOptions(IServiceCollection services)
         {
             var chargesBatchYears = GetChargesBatchYears();
@@ -131,6 +149,8 @@ namespace HfsChargesContainer
         public string GetGCPJsonCredentials() => GetEnvVarOrThrow("GOOGLE_API_KEY", "Google Cloud credentials are missing.");
         public string GetChargesBatchYears() => GetEnvVarOrThrow("CHARGES_BATCH_YEARS", "Charges Batch Years are missing.");
         public string GetBatchSize() => GetEnvVarOrThrow("BATCH_SIZE", "Batch Size is missing.");
+        public string GetEnvironment() => GetEnvVarOrThrow("ENVIRONMENT", "environment");
+        public bool IsLocalEnvironment() => GetEnvironment().Equals("local");
         #endregion
     }
 }
