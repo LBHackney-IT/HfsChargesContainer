@@ -18,6 +18,7 @@ namespace HfsChargesContainer.Options
             EnvVarSSMToAppNameLookup = new()
             {
                 { $"/housing-finance/{environment}/charges-batch-years", "CHARGES_BATCH_YEARS" },
+                { $"/housing-finance/{environment}/bulk-insert-batch-size", "BATCH_SIZE" },
                 { $"/housing-finance/{environment}/google-application-credentials-json", "GOOGLE_API_KEY" },
                 { $"/housing-finance/{environment}/db-host", "DB_HOST" },
                 { $"/housing-finance/{environment}/mssql-database", "DB_NAME" },
