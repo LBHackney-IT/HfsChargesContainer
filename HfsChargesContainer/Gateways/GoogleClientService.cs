@@ -2,6 +2,7 @@ using System.Dynamic;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using HfsChargesContainer.Gateways.Interfaces;
+using HfsChargesContainer.Helpers;
 using Newtonsoft.Json;
 
 namespace HfsChargesContainer.Gateways
@@ -15,21 +16,26 @@ namespace HfsChargesContainer.Gateways
             _sheetsService = sheetService;
         }
 
-        public async Task<string> ReadSheetAsync(string spreadSheetId, string sheetName, string sheetRange)
+        public async Task<IList<_TEntity>> ReadSheetToEntitiesAsync<_TEntity>(string spreadSheetId, string sheetName,
+            string sheetRange) where _TEntity : class
         {
-            Console.WriteLine($"Executing ReadSheetAsync method with {sheetName}!{sheetRange}.");
-
-            SpreadsheetsResource.ValuesResource.GetRequest getSheetRequest =
+            SpreadsheetsResource.ValuesResource.GetRequest getter =
                 _sheetsService.Spreadsheets.Values.Get(spreadSheetId, $"{sheetName}!{sheetRange}");
 
-            ValueRange response = await getSheetRequest.ExecuteAsync().ConfigureAwait(false);
+            ValueRange response = await getter.ExecuteAsync().ConfigureAwait(false);
             IList<IList<object>> values = response.Values;
 
             if (values == null || !values.Any())
-                throw new Exception("Sheet is empty!");
+            {
+                LoggingHandler.LogInfo($"No data found. Spreadsheet id: {spreadSheetId}, sheet name: {sheetName}, sheet range: {sheetRange}");
+                return null;
+            }
+            LoggingHandler.LogInfo($"Rows {values.Count} found");
 
-            IList<string> sheetHeaders = values.First().Select(cell => cell.ToString()).ToList();
+            // Get the headers
+            IList<string> headers = values.First().Select(cell => cell.ToString()).ToList();
             IList<object> rowObjects = new List<object>();
+            LoggingHandler.LogInfo($"Writing row values to objects, {headers.Count} headers found");
 
             // For each row of actual data
             foreach (var row in values.Skip(1))
@@ -40,7 +46,7 @@ namespace HfsChargesContainer.Gateways
                 var rowItemAccessor = rowItem as IDictionary<string, object>;
 
                 // Add the cell values using the headers as properties
-                foreach (string header in sheetHeaders)
+                foreach (string header in headers)
                 {
                     if (cellIterator < rowCellCount)
                     {
@@ -55,7 +61,22 @@ namespace HfsChargesContainer.Gateways
                 rowObjects.Add(rowItem);
             }
 
-            return JsonConvert.SerializeObject(rowObjects);
+
+            try
+            {
+                LoggingHandler.LogInfo($"Writing values to objects and serializing");
+                string convertedJson = JsonConvert.SerializeObject(rowObjects);
+                var entities = JsonConvert.DeserializeObject<IList<_TEntity>>(convertedJson);
+
+                return entities;
+            }
+            catch (Exception exc)
+            {
+                LoggingHandler.LogInfo($"Error writing values to objects and serializing");
+                LoggingHandler.LogInfo(exc.ToString());
+
+                throw;
+            }
         }
     }
 }
