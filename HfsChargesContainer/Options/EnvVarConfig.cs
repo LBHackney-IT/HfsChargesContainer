@@ -21,8 +21,8 @@ namespace HfsChargesContainer.Options
                 { $"/housing-finance/{environment}/bulk-insert-batch-size", "BATCH_SIZE" },
                 { $"/housing-finance/{environment}/google-application-credentials-json", "GOOGLE_API_KEY" },
                 { $"/housing-finance/{environment}/db-host", "DB_HOST" },
-                { $"/housing-finance/{environment}/mssql-database", "DB_NAME" },
-                { $"/housing-finance/{environment}/mssql-username", "DB_USER" },
+                { $"/housing-finance/{environment}/db-database", "DB_NAME" },
+                { $"/housing-finance/{environment}/db-username", "DB_USER" },
                 { $"/housing-finance/{environment}/db-password", "DB_PASSWORD" },
             };
         }
