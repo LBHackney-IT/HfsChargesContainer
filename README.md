@@ -23,7 +23,7 @@ This application is supposed to run as docker container.
     ``` sh
     cp .env.sample .env
     ```
-2. If you intend to run the application in non-local mode _(you set the ENVIRONMENT to anything other than 'local')_, you will need to add in the AWS programmatic access credentials into your `.env` file for the application to be able to access the AWS SSM Parameter Store and AWS SNS Topic for sending email alerts.
+2. If you intend to run the application in non-local mode _(you set the ENVIRONMENT to anything other than 'local')_, you will need to add in the AWS programmatic access credentials into your `.env` file for the application to be able to access the AWS SSM Parameter Store and AWS SNS Topic for sending email alerts. Plus, may need to set the `SNS_TOPC_ARN` if you intend to test email alerts.
 2. Build and run the application docker container using a Makefile
     ``` sh
     make run
