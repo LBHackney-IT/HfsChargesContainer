@@ -44,7 +44,7 @@ The application depends on:
 * Docker - the Application is intended to be run as a docker container.
 * Housing Interim API SQL database - all the operations are done against this database.
 * AWS SNS Topic - _([see infrastructure](<https://github.com/LBHackney-IT/mtfh-finance-infrastructure> "Code respository link"))_ for sending out emails notifications on application failure. _(This is disabled by default for the local run)_
-* AWS SSM Parameter Store - The application is configured to pick up all of the environment variables _(except the `ENVIRONMENT` and `SNS_TOPIC_ARN`)_ from the parameter store. This simplifies the new financial years preparation as well as any database credentials changes as this allows avoiding the redeployment of the application's infrastructure. 
+* AWS SSM Parameter Store - The application is configured to pick up all of the environment variables _(except the `ENVIRONMENT` and `SNS_TOPIC_ARN`)_ from the parameter store. This simplifies the new financial years preparation _(updating `CHARGES_BATCH_YEARS`)_ and the updating of other environment variables by omitting the need to re-deploy anything. _(This is also disabled by default for the local run)_
 
 # Nightly run
 This process is only 1 part of the entire nightly run. The rest of the process parts are deployed as part of the [Housing Finance Interim API](<https://github.com/LBHackney-IT/housing-finance-interim-api/> "Code repository link") application. See more information about the nightly run within these diagrams [link](https://drive.google.com/drive/u/0/folders/17ht3pLvOmC3WTMxSagid_MnubMTsSiI1).
