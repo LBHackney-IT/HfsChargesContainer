@@ -1,4 +1,4 @@
-using HfsChargesContainer;
+﻿using HfsChargesContainer;
 using HfsChargesContainer.Helpers;
 
 try
@@ -32,6 +32,9 @@ catch (Exception ex)
 
     LoggingHandler.LogError("\nApplication exception:\n");
 
-    // Throw to get exception logged.
+    LoggingHandler.LogError(
+        $"Exception Type: {ex.GetType().Name}\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}\n\n");
+    
+    // Throw to terminate with non-zero exit
     throw;
 }
