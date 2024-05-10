@@ -1,18 +1,18 @@
-﻿using HfsChargesContainer;
+using HfsChargesContainer;
 using HfsChargesContainer.Helpers;
 
 try
 {
-    LoggingHandler.LogError("Application started!\nConfiguring the Start up!");
+    LoggingHandler.LogInfo("Application started!\nConfiguring the Start up!");
 
     var entryPoint = new Startup()
         .ConfigureServices()
         .Build<ProcessEntryPoint>();
 
-    LoggingHandler.LogError("Ready to Run!");
+    LoggingHandler.LogInfo("Ready to Run!");
     await entryPoint.Run();
 
-    LoggingHandler.LogError("Application finished!");
+    LoggingHandler.LogInfo("Application finished!");
 }
 catch (Exception ex)
 {
@@ -26,7 +26,7 @@ catch (Exception ex)
     if (environment == "local")
         throw;
 
-    LoggingHandler.LogError("Attempting to send out an SNS Nofication alert.");
+    LoggingHandler.LogInfo("Attempting to send out an SNS Nofication alert.");
 
     await EmailAlertsHandler.TrySendEmailAlert(ex, environment);
 
