@@ -34,7 +34,7 @@ catch (Exception ex)
 
     LoggingHandler.LogError(
         $"Exception Type: {ex.GetType().Name}\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}\n\n");
-    
+
     // Throw to terminate with non-zero exit
     throw;
 }
