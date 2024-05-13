@@ -80,14 +80,14 @@ namespace HfsChargesContainer
         #region Resilience Pipelines
         public void ConfigureResiliencePolicies(IServiceCollection services)
         {
-            var asyncRetryPolicy =  Policy<List<ChargesAux>>
+            var asyncRetryPolicy =  Policy<IList<ChargesAux>>
                 .Handle<Exception>()
                 .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(5), retryCount: 10));
 
-            Func<IServiceProvider, AsyncRetryPolicy<List<ChargesAux>>> implementationFactory =
+            Func<IServiceProvider, AsyncRetryPolicy<IList<ChargesAux>>> implementationFactory =
                 (IServiceProvider services) => asyncRetryPolicy;
 
-            services.AddScoped<IAsyncPolicy<List<ChargesAux>>>(implementationFactory);
+            services.AddScoped<IAsyncPolicy<IList<ChargesAux>>>(implementationFactory);
         }
         #endregion
 
