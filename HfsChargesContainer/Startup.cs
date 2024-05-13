@@ -11,6 +11,9 @@ using HfsChargesContainer.UseCases;
 using HfsChargesContainer.UseCases.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Polly;
+using Polly.Contrib.WaitAndRetry;
+using Polly.Retry;
 
 namespace HfsChargesContainer
 {
@@ -73,6 +76,20 @@ namespace HfsChargesContainer
             services.AddScoped<IChargesBatchYearsGateway, ChargesBatchYearsGateway>();
             services.AddScoped<IGoogleFileSettingGateway, GoogleFileSettingGateway>();
         }
+
+        #region Resilience Pipelines
+        public void ConfigureResiliencePolicies(IServiceCollection services)
+        {
+            var asyncRetryPolicy =  Policy<List<ChargesAux>>
+                .Handle<Exception>()
+                .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(5), retryCount: 10));
+
+            Func<IServiceProvider, AsyncRetryPolicy<List<ChargesAux>>> implementationFactory =
+                (IServiceProvider services) => asyncRetryPolicy;
+
+            services.AddScoped<IAsyncPolicy<List<ChargesAux>>>(implementationFactory);
+        }
+        #endregion
 
         #region External Storage Interfaces
         public void ConfigureDatabaseContext(IServiceCollection services)
