@@ -6,6 +6,8 @@ using Polly;
 
 namespace HfsChargesContainer.UseCases
 {
+    using FetchChargesBySheetTab = Func<Task<IList<ChargesAuxDomain>>>;
+
     public class LoadChargesUseCase : ILoadChargesUseCase
     {
         private readonly IBatchLogGateway _batchLogGateway;
@@ -56,13 +58,14 @@ namespace HfsChargesContainer.UseCases
                 {
                     foreach (var sheetName in Enum.GetValues(typeof(RentGroup)))
                     {
+                        var fetchChargesCallback = GetChargesBySheetTabCB(
+                            sheetId: googleFile.GoogleIdentifier,
+                            tabName: sheetName.ToString(),
+                            cellRange: sheetRange
+                        );
+
                         var chargesAux = await _fetchSheetRetryPolicy
-                            .ExecuteAsync(async () => await _googleClientService
-                                .ReadSheetToEntitiesAsync<ChargesAuxDomain>(
-                                    googleFile.GoogleIdentifier,
-                                    sheetName.ToString(),
-                                    sheetRange
-                                ));
+                            .ExecuteAsync(fetchChargesCallback);
 
                         if (!chargesAux.Any())
                         {
@@ -78,6 +81,12 @@ namespace HfsChargesContainer.UseCases
             await _batchLogGateway.SetToSuccessAsync(batch.Id).ConfigureAwait(false);
             LoggingHandler.LogInfo($"End charges import");
             return true;
+        }
+
+        private FetchChargesBySheetTab GetChargesBySheetTabCB(string sheetId, string tabName, string cellRange)
+        {
+            return async () => await _googleClientService
+                    .ReadSheetToEntitiesAsync<ChargesAuxDomain>(sheetId, tabName, cellRange);
         }
 
         private async Task<List<GoogleFileSettingDomain>> GetGoogleFileSetting(string label)
