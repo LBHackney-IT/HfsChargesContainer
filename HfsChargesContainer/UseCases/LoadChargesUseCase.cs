@@ -2,6 +2,7 @@ using HfsChargesContainer.Domain;
 using HfsChargesContainer.Gateways.Interfaces;
 using HfsChargesContainer.Helpers;
 using HfsChargesContainer.UseCases.Interfaces;
+using Polly;
 
 namespace HfsChargesContainer.UseCases
 {
@@ -13,6 +14,7 @@ namespace HfsChargesContainer.UseCases
         private readonly IChargesGateway _chargesGateway;
         private readonly IGoogleFileSettingGateway _googleFileSettingGateway;
         private readonly IGoogleClientService _googleClientService;
+        private readonly IAsyncPolicy<IList<ChargesAuxDomain>> _fetchSheetRetryPolicy;
         private const string ChargesLabel = "Charges";
 
         public LoadChargesUseCase(
@@ -21,7 +23,9 @@ namespace HfsChargesContainer.UseCases
             IChargesBatchYearsGateway chargesBatchYearsGateway,
             IChargesGateway chargesGateway,
             IGoogleFileSettingGateway googleFileSettingGateway,
-            IGoogleClientService googleClientService)
+            IGoogleClientService googleClientService,
+            IAsyncPolicy<IList<ChargesAuxDomain>> fetchSheetRetryPolicy
+        )
         {
             _batchLogGateway = batchLogGateway;
             _batchLogErrorGateway = batchLogErrorGateway;
@@ -29,6 +33,7 @@ namespace HfsChargesContainer.UseCases
             _chargesGateway = chargesGateway;
             _googleFileSettingGateway = googleFileSettingGateway;
             _googleClientService = googleClientService;
+            _fetchSheetRetryPolicy = fetchSheetRetryPolicy;
         }
 
         public async Task<bool> ExecuteAsync()
@@ -51,9 +56,13 @@ namespace HfsChargesContainer.UseCases
                 {
                     foreach (var sheetName in Enum.GetValues(typeof(RentGroup)))
                     {
-                        var chargesAux = await _googleClientService
-                            .ReadSheetToEntitiesAsync<ChargesAuxDomain>(googleFile.GoogleIdentifier, sheetName.ToString(), sheetRange)
-                            .ConfigureAwait(false);
+                        var chargesAux = await _fetchSheetRetryPolicy
+                            .ExecuteAsync(async () => await _googleClientService
+                                .ReadSheetToEntitiesAsync<ChargesAuxDomain>(
+                                    googleFile.GoogleIdentifier,
+                                    sheetName.ToString(),
+                                    sheetRange
+                                ));
 
                         if (!chargesAux.Any())
                         {
