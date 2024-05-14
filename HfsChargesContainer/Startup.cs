@@ -43,6 +43,7 @@ namespace HfsChargesContainer
             ConfigureUseCases(services);
             ConfigureEntry(services);
             ConfigureGoogleClient(services);
+            ConfigureResiliencePolicies(services);
 
             return this;
         }
