@@ -1,6 +1,7 @@
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
+using HfsChargesContainer.Domain;
 using HfsChargesContainer.Gateways;
 using HfsChargesContainer.Gateways.Interfaces;
 using HfsChargesContainer.Helpers;
@@ -80,14 +81,14 @@ namespace HfsChargesContainer
         #region Resilience Pipelines
         public void ConfigureResiliencePolicies(IServiceCollection services)
         {
-            var asyncRetryPolicy =  Policy<IList<ChargesAux>>
+            var asyncRetryPolicy =  Policy<IList<ChargesAuxDomain>>
                 .Handle<Exception>()
                 .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(5), retryCount: 10));
 
-            Func<IServiceProvider, AsyncRetryPolicy<IList<ChargesAux>>> implementationFactory =
+            Func<IServiceProvider, AsyncRetryPolicy<IList<ChargesAuxDomain>>> implementationFactory =
                 (IServiceProvider services) => asyncRetryPolicy;
 
-            services.AddScoped<IAsyncPolicy<IList<ChargesAux>>>(implementationFactory);
+            services.AddScoped<IAsyncPolicy<IList<ChargesAuxDomain>>>(implementationFactory);
         }
         #endregion
 
