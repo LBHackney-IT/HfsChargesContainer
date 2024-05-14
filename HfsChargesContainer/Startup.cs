@@ -80,16 +80,29 @@ namespace HfsChargesContainer
         }
 
         #region Resilience Pipelines
-        public void ConfigureResiliencePolicies(IServiceCollection services)
+        public void ConfigureEntityReturnRetry<TOut>(IServiceCollection services) where TOut : class
         {
-            var asyncRetryPolicy =  Policy<IList<ChargesAuxDomain>>
+            var asyncRetryPolicy =  Policy<TOut>
                 .Handle<Exception>()
-                .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(5), retryCount: 10));
+                .WaitAndRetryAsync(
+                    Backoff.DecorrelatedJitterBackoffV2(
+                        medianFirstRetryDelay: TimeSpan.FromSeconds(5),
+                        retryCount: 10
+                    )
+                );
 
-            Func<IServiceProvider, AsyncRetryPolicy<IList<ChargesAuxDomain>>> implementationFactory =
+            Func<IServiceProvider, AsyncRetryPolicy<TOut>> implementationFactory =
                 (IServiceProvider services) => asyncRetryPolicy;
 
-            services.AddScoped<IAsyncPolicy<IList<ChargesAuxDomain>>>(implementationFactory);
+            services.AddScoped<IAsyncPolicy<TOut>>(implementationFactory);
+        }
+
+        public void ConfigureFetchSheetRetry<TOutEntity>(IServiceCollection services)
+            => ConfigureEntityReturnRetry<IList<TOutEntity>>(services);
+
+        public void ConfigureResiliencePolicies(IServiceCollection services)
+        {
+            ConfigureFetchSheetRetry<ChargesAuxDomain>(services);
         }
         #endregion
 
