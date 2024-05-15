@@ -25,7 +25,7 @@ namespace HfsChargesContainer.Tests.Resilience
 
 
         public ChargesFetchSheetRetryPolicyTests()
-        {            
+        {
             _mockBatchLogGateway = new Mock<IBatchLogGateway>();
             _mockBatchLogErrorGateway = new Mock<IBatchLogErrorGateway>();
             _mockChargesBatchYearsGateway = new Mock<IChargesBatchYearsGateway>();
@@ -78,7 +78,7 @@ namespace HfsChargesContainer.Tests.Resilience
                 .ReturnsAsync(googleFileSettings);
 
             // We don't want to sit for 40 minutes waiting for all 10 retries.
-            var retryCount = failureCount; 
+            var retryCount = failureCount;
 
             Action<string, string, string> action = (string _, string _, string _) =>
             {

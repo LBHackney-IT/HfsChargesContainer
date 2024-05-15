@@ -82,7 +82,7 @@ namespace HfsChargesContainer
         #region Resilience Pipelines
         public void ConfigureEntityReturnRetry<TOut>(IServiceCollection services) where TOut : class
         {
-            var asyncRetryPolicy =  Policy<TOut>
+            var asyncRetryPolicy = Policy<TOut>
                 .Handle<Exception>()
                 .WaitAndRetryAsync(
                     Backoff.DecorrelatedJitterBackoffV2(
