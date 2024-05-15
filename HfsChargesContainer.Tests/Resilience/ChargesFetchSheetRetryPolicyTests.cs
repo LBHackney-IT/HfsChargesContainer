@@ -99,7 +99,7 @@ namespace HfsChargesContainer.Tests.Resilience
             .Callback(action)
             .ReturnsAsync(RandomGen.CreateMany<ChargesAuxDomain>().ToList());
 
-            // It's going to be 1 failure + sheet tab count of successes (retry + remaining keys)
+            // It's going to be failure count on 1st sheet tab + sheet tab count of successes
             var expectedCallCount = Enum.GetValues(typeof(RentGroup)).Length + failureCount;
 
             // act
