@@ -2,9 +2,12 @@ using HfsChargesContainer.Domain;
 using HfsChargesContainer.Gateways.Interfaces;
 using HfsChargesContainer.Helpers;
 using HfsChargesContainer.UseCases.Interfaces;
+using Polly;
 
 namespace HfsChargesContainer.UseCases
 {
+    using FetchChargesBySheetTab = Func<Task<IList<ChargesAuxDomain>>>;
+
     public class LoadChargesUseCase : ILoadChargesUseCase
     {
         private readonly IBatchLogGateway _batchLogGateway;
@@ -13,6 +16,7 @@ namespace HfsChargesContainer.UseCases
         private readonly IChargesGateway _chargesGateway;
         private readonly IGoogleFileSettingGateway _googleFileSettingGateway;
         private readonly IGoogleClientService _googleClientService;
+        private readonly IAsyncPolicy<IList<ChargesAuxDomain>> _fetchSheetRetryPolicy;
         private const string ChargesLabel = "Charges";
 
         public LoadChargesUseCase(
@@ -21,7 +25,9 @@ namespace HfsChargesContainer.UseCases
             IChargesBatchYearsGateway chargesBatchYearsGateway,
             IChargesGateway chargesGateway,
             IGoogleFileSettingGateway googleFileSettingGateway,
-            IGoogleClientService googleClientService)
+            IGoogleClientService googleClientService,
+            IAsyncPolicy<IList<ChargesAuxDomain>> fetchSheetRetryPolicy
+        )
         {
             _batchLogGateway = batchLogGateway;
             _batchLogErrorGateway = batchLogErrorGateway;
@@ -29,6 +35,7 @@ namespace HfsChargesContainer.UseCases
             _chargesGateway = chargesGateway;
             _googleFileSettingGateway = googleFileSettingGateway;
             _googleClientService = googleClientService;
+            _fetchSheetRetryPolicy = fetchSheetRetryPolicy;
         }
 
         public async Task<bool> ExecuteAsync()
@@ -51,9 +58,14 @@ namespace HfsChargesContainer.UseCases
                 {
                     foreach (var sheetName in Enum.GetValues(typeof(RentGroup)))
                     {
-                        var chargesAux = await _googleClientService
-                            .ReadSheetToEntitiesAsync<ChargesAuxDomain>(googleFile.GoogleIdentifier, sheetName.ToString(), sheetRange)
-                            .ConfigureAwait(false);
+                        var fetchChargesCallback = GetChargesBySheetTabCB(
+                            sheetId: googleFile.GoogleIdentifier,
+                            tabName: sheetName.ToString(),
+                            cellRange: sheetRange
+                        );
+
+                        var chargesAux = await _fetchSheetRetryPolicy
+                            .ExecuteAsync(fetchChargesCallback);
 
                         if (!chargesAux.Any())
                         {
@@ -69,6 +81,12 @@ namespace HfsChargesContainer.UseCases
             await _batchLogGateway.SetToSuccessAsync(batch.Id).ConfigureAwait(false);
             LoggingHandler.LogInfo($"End charges import");
             return true;
+        }
+
+        private FetchChargesBySheetTab GetChargesBySheetTabCB(string sheetId, string tabName, string cellRange)
+        {
+            return async () => await _googleClientService
+                    .ReadSheetToEntitiesAsync<ChargesAuxDomain>(sheetId, tabName, cellRange);
         }
 
         private async Task<List<GoogleFileSettingDomain>> GetGoogleFileSetting(string label)
