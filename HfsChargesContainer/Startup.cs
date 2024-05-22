@@ -1,6 +1,7 @@
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
+using HfsChargesContainer.Domain;
 using HfsChargesContainer.Gateways;
 using HfsChargesContainer.Gateways.Interfaces;
 using HfsChargesContainer.Helpers;
@@ -11,6 +12,9 @@ using HfsChargesContainer.UseCases;
 using HfsChargesContainer.UseCases.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Polly;
+using Polly.Contrib.WaitAndRetry;
+using Polly.Retry;
 
 namespace HfsChargesContainer
 {
@@ -39,6 +43,7 @@ namespace HfsChargesContainer
             ConfigureUseCases(services);
             ConfigureEntry(services);
             ConfigureGoogleClient(services);
+            ConfigureResiliencePolicies(services);
 
             return this;
         }
@@ -73,6 +78,33 @@ namespace HfsChargesContainer
             services.AddScoped<IChargesBatchYearsGateway, ChargesBatchYearsGateway>();
             services.AddScoped<IGoogleFileSettingGateway, GoogleFileSettingGateway>();
         }
+
+        #region Resilience Pipelines
+        public void ConfigureEntityReturnRetry<TOut>(IServiceCollection services) where TOut : class
+        {
+            var asyncRetryPolicy = Policy<TOut>
+                .Handle<Exception>()
+                .WaitAndRetryAsync(
+                    Backoff.DecorrelatedJitterBackoffV2(
+                        medianFirstRetryDelay: TimeSpan.FromSeconds(5),
+                        retryCount: 10
+                    )
+                );
+
+            Func<IServiceProvider, AsyncRetryPolicy<TOut>> implementationFactory =
+                (IServiceProvider services) => asyncRetryPolicy;
+
+            services.AddScoped<IAsyncPolicy<TOut>>(implementationFactory);
+        }
+
+        public void ConfigureFetchSheetRetry<TOutEntity>(IServiceCollection services)
+            => ConfigureEntityReturnRetry<IList<TOutEntity>>(services);
+
+        public void ConfigureResiliencePolicies(IServiceCollection services)
+        {
+            ConfigureFetchSheetRetry<ChargesAuxDomain>(services);
+        }
+        #endregion
 
         #region External Storage Interfaces
         public void ConfigureDatabaseContext(IServiceCollection services)
