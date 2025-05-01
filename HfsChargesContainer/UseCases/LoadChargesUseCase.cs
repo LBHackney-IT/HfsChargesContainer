@@ -85,7 +85,7 @@ namespace HfsChargesContainer.UseCases
         {
             const string sheetRangeRent = "A:AX";
             const string sheetRangeLeasehold = "A:AZ";
-            const RentGroup[] leaseholdSheetNames = new[] { RentGroup.LHServCharges, RentGroup.LHMajorWorks };
+            RentGroup[] leaseholdSheetNames = new[] { RentGroup.LHServCharges, RentGroup.LHMajorWorks };
             return leaseholdSheetNames.Contains(sheetTabName) ? sheetRangeLeasehold : sheetRangeRent;
         }
 
