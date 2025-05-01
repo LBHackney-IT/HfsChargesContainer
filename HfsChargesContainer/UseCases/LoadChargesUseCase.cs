@@ -58,8 +58,8 @@ namespace HfsChargesContainer.UseCases
                     {
                         var fetchChargesCallback = GetChargesBySheetTabCB(
                             sheetId: googleFile.GoogleIdentifier,
-                            tabName: GetSheetRangeByRentGroup(sheetName),
-                            cellRange: sheetRange
+                            tabName: sheetName.ToString(),
+                            cellRange: GetSheetRangeByRentGroup(sheetName)
                         );
 
                         var chargesAux = await _fetchSheetRetryPolicy
