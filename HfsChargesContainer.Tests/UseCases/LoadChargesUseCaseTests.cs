@@ -13,7 +13,7 @@ using Xunit;
 namespace HfsChargesContainer.Tests.UseCases
 {
     using FetchChargesSheet = Func<Task<IList<ChargesAuxDomain>>>;
-    using ReadGSheetInputsTuple = (string sheetId, string sheetName, string cellRange);
+    using ReadGSheetInputsTuple = ValueTuple<string, string, string>;
 
     public class LoadChargesUseCaseTests
     {
