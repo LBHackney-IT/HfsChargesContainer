@@ -52,6 +52,8 @@ namespace HfsChargesContainer.Gateways
                     DMC = c.DMC ?? 0,
                     DMJ = c.DMJ ?? 0,
                     DMR = c.DMR ?? 0,
+                    DR1 = c.DR1 ?? 0,
+                    DR2 = c.DR2 ?? 0,
                     DR5 = c.DR5 ?? 0,
                     DRP = c.DRP ?? 0,
                     DRR = c.DRR ?? 0,
