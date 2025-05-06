@@ -207,7 +207,7 @@ namespace HfsChargesContainer.Tests.UseCases
 
                 Assert.Equal(sheetId, googleFileSettings.First().GoogleIdentifier);
                 Assert.True(sheetRentGroups.Contains(sheetName));
-                Assert.Equal(cellRange, expectedRange(sheetName));
+                Assert.Equal(cellRange, expectedRange);
             }
         }
 
