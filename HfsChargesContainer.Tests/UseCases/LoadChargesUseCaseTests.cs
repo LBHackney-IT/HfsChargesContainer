@@ -205,9 +205,9 @@ namespace HfsChargesContainer.Tests.UseCases
                     ? "A:AZ"
                     : "A:AX";
 
-                Assert.AreEqual(sheetId, googleFileSettings.GoogleIdentifier);
-                Assert.IsTrue(sheetRentGroups.Contains(sheetName));
-                Assert.AreEqual(cellRange, expectedRange(sheetName));
+                Assert.Equal(sheetId, googleFileSettings.First().GoogleIdentifier);
+                Assert.True(sheetRentGroups.Contains(sheetName));
+                Assert.Equal(cellRange, expectedRange(sheetName));
             }
         }
 
