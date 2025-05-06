@@ -13,6 +13,7 @@ using Xunit;
 namespace HfsChargesContainer.Tests.UseCases
 {
     using FetchChargesSheet = Func<Task<IList<ChargesAuxDomain>>>;
+    using ReadGSheetInputsTuple = ValueTuple<string, string, string>;
 
     public class LoadChargesUseCaseTests
     {
@@ -146,6 +147,74 @@ namespace HfsChargesContainer.Tests.UseCases
                     It.IsAny<string>()
                 ), Times.Exactly(expectedCallCount)
             );
+        }
+
+        [Fact]
+        public async Task LoadChargesUseCaseGivesToTheRetrySheetsPolicyWrapperAGetChargesSheetCallbackWithTheExpectedParameters()
+        {
+            // arrange
+            var sheetRentGroups = (Enum.GetValues(typeof(RentGroup)) as RentGroup[])
+                .Select(srg => srg.ToString())
+                .ToList();
+
+            _mockBatchLogGateway
+                .Setup(bl => bl.CreateAsync(It.IsAny<string>(), It.IsAny<bool>()))
+                .ReturnsAsync(RandomGen.Create<BatchLogDomain>());
+
+            var chargesBatchYear = RandomGen.Create<ChargesBatchYearDomain>();
+            _mockChargesBatchYearsGateway
+                .Setup(cby => cby.GetPendingYear())
+                .ReturnsAsync(chargesBatchYear);
+
+            var googleFileSettings = RandomGen.CreateMany<GoogleFileSettingDomain>(quantity: 1).ToList();
+            googleFileSettings[0].FileYear = chargesBatchYear.Year;
+            _mockGoogleFileSettingGateway
+                .Setup(gfs => gfs.GetSettingsByLabel(It.IsAny<string>()))
+                .ReturnsAsync(googleFileSettings);
+
+            // Make the retry policy merely be an empty wrapper around the callback.
+            _mockFetchSheetRetryPolicy
+                .Setup(
+                    p => p.ExecuteAsync(It.IsAny<FetchChargesSheet>())
+                )
+                .Returns(
+                    (FetchChargesSheet incFunc) => Task.FromResult(incFunc().Result)
+                );
+
+            var capturedInputs = new List<ReadGSheetInputsTuple>();
+            _mockGoogleClientService.Setup(
+                gc => gc.ReadSheetToEntitiesAsync<ChargesAuxDomain>(
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<string>()
+                )
+            )
+            .Callback<string, string, string>((sheetId, sheetName, cellRange) =>
+            {
+                capturedInputs.Add((sheetId, sheetName, cellRange));
+            })
+            .ReturnsAsync(RandomGen.CreateMany<ChargesAuxDomain>().ToList());
+
+            // act
+            await _classUnderTest.ExecuteAsync();
+
+            // assert
+            foreach (var (sheetId, sheetName, cellRange) in capturedInputs)
+            {
+                var expectedRange = IsSheetTabLeasehold(sheetName)
+                    ? "A:AZ"
+                    : "A:AX";
+
+                Assert.Equal(sheetId, googleFileSettings.First().GoogleIdentifier);
+                Assert.True(sheetRentGroups.Contains(sheetName));
+                Assert.Equal(cellRange, expectedRange);
+            }
+        }
+
+        private bool IsSheetTabLeasehold(string sheetRentGroup)
+        {
+            return sheetRentGroup == RentGroup.LHServCharges.ToString()
+                || sheetRentGroup == RentGroup.LHMajorWorks.ToString();
         }
     }
 }
