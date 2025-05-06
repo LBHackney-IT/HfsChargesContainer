@@ -189,7 +189,8 @@ namespace HfsChargesContainer.Tests.UseCases
                     It.IsAny<string>()
                 )
             )
-            .Callback<string, string, string>((sheetId, sheetName, cellRange) => {
+            .Callback<string, string, string>((sheetId, sheetName, cellRange) =>
+            {
                 capturedInputs.Add((sheetId, sheetName, cellRange));
             })
             .ReturnsAsync(RandomGen.CreateMany<ChargesAuxDomain>().ToList());
