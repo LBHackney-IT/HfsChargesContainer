@@ -85,10 +85,45 @@ namespace HfsChargesContainer
             var asyncRetryPolicy = Policy<TOut>
                 .Handle<Exception>()
                 .WaitAndRetryAsync(
-                    Backoff.DecorrelatedJitterBackoffV2(
+                    sleepDurations: Backoff.DecorrelatedJitterBackoffV2(
                         medianFirstRetryDelay: TimeSpan.FromSeconds(5),
                         retryCount: 10
-                    )
+                    ),
+                    onRetryAsync: async (DelegateResult<TOut> delegateResult, TimeSpan timespan, int retryAttempt, Context context) =>
+                    {
+                        string exceptionTypeName = "N/A";
+                        string exceptionMessage = "N/A";
+                        string exceptionStackTrace = "N/A";
+                        string innerExceptionData = "N/A";
+
+                        var exception = delegateResult.Exception;
+                        if (exception != null)
+                        {
+                            exceptionTypeName = delegateResult.Exception.GetType().Name;
+                            exceptionMessage = delegateResult.Exception.Message;
+                            exceptionStackTrace = delegateResult.Exception.StackTrace ?? "No stack trace available.";
+
+                            var innexEx = exception.InnerException;
+                            if (innexEx != null)
+                            {
+                                innerExceptionData = $"InnerException: {innexEx.GetType().Name}. Inner message: *{innexEx.Message}*.\n";
+                            }
+                        }
+                        else
+                        {
+                            exceptionMessage = $"A non-exception trigger occurred or exception details are missing. Result (if any): {delegateResult.Result?.ToString() ?? "N/A"}";
+                        }
+
+                        LoggingHandler.LogError(
+                            $"Retry policy attempt number: {retryAttempt} " +
+                            $"due to: {exceptionTypeName}. Message: *{exceptionMessage}*.\n" +
+                            $"Inner message:\n*{innerExceptionData}*.\n" +
+                            $"Waiting {timespan.TotalSeconds}s before next try.\n\n" +
+                            $"Exception StackTrace: {exceptionStackTrace}"
+                        );
+
+                        await Task.CompletedTask;
+                    }
                 );
 
             Func<IServiceProvider, AsyncRetryPolicy<TOut>> implementationFactory =
