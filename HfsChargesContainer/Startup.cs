@@ -90,6 +90,24 @@ namespace HfsChargesContainer
                         retryCount: 10
                     )
                 );
+                .WaitAndRetryAsync(
+                    sleepDurations: Backoff.DecorrelatedJitterBackoffV2(
+                        medianFirstRetryDelay: TimeSpan.FromSeconds(5),
+                        retryCount: 10
+                    ),
+                    onRetryAsync: async (exception, timespan, retryAttempt, context) =>
+                    {
+                        var errorMessage = $"Retry policy attempt number: {retryAttempt} " +
+                            $"due to: {exception.GetType().Name}. Message: *{exception.Message}*.\n" +
+                            $"Inner message:\n*{exception?.InnerException}*.\n" +
+                            $"Waiting {timespan.TotalSeconds}s before next try.\n\n" +
+                            $"Exception StackTrace: {exception.StackTrace}";
+
+                        LoggingHandler.LogError(errorMessage);
+
+                        await Task.CompletedTask;
+                    }
+                );
 
             Func<IServiceProvider, AsyncRetryPolicy<TOut>> implementationFactory =
                 (IServiceProvider services) => asyncRetryPolicy;
