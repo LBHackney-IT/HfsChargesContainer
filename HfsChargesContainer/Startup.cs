@@ -89,15 +89,38 @@ namespace HfsChargesContainer
                         medianFirstRetryDelay: TimeSpan.FromSeconds(5),
                         retryCount: 10
                     ),
-                    onRetryAsync: async (exception, timespan, retryAttempt, context) =>
+                    onRetryAsync: async (DelegateResult<TOut> delegateResult, TimeSpan timespan, int retryAttempt, Context context) =>
                     {
-                        var errorMessage = $"Retry policy attempt number: {retryAttempt} " +
-                            $"due to: {exception.GetType().Name}. Message: *{exception.Message}*.\n" +
-                            $"Inner message:\n*{exception?.InnerException}*.\n" +
-                            $"Waiting {timespan.TotalSeconds}s before next try.\n\n" +
-                            $"Exception StackTrace: {exception.StackTrace}";
+                        string exceptionTypeName = "N/A";
+                        string exceptionMessage = "N/A";
+                        string exceptionStackTrace = "N/A";
+                        string innerExceptionData = "N/A";
 
-                        LoggingHandler.LogError(errorMessage);
+                        var exception = delegateResult.Exception;
+                        if (exception != null)
+                        {
+                            exceptionTypeName = delegateResult.Exception.GetType().Name;
+                            exceptionMessage = delegateResult.Exception.Message;
+                            exceptionStackTrace = delegateResult.Exception.StackTrace ?? "No stack trace available.";
+
+                            var innexEx = exception.InnerException;
+                            if (innexEx != null)
+                            {
+                                innerExceptionData = $"InnerException: {innexEx.GetType().Name}. Inner message: *{innexEx.Message}*.\n";
+                            }
+                        }
+                        else
+                        {
+                            exceptionMessage = $"A non-exception trigger occurred or exception details are missing. Result (if any): {delegateResult.Result?.ToString() ?? "N/A"}";
+                        }
+
+                        LoggingHandler.LogError(
+                            $"Retry policy attempt number: {retryAttempt} " +
+                            $"due to: {exceptionTypeName}. Message: *{exceptionMessage}*.\n" +
+                            $"Inner message:\n*{innerExceptionData}*.\n" +
+                            $"Waiting {timespan.TotalSeconds}s before next try.\n\n" +
+                            $"Exception StackTrace: {exceptionStackTrace}"
+                        );
 
                         await Task.CompletedTask;
                     }
