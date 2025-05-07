@@ -85,12 +85,6 @@ namespace HfsChargesContainer
             var asyncRetryPolicy = Policy<TOut>
                 .Handle<Exception>()
                 .WaitAndRetryAsync(
-                    Backoff.DecorrelatedJitterBackoffV2(
-                        medianFirstRetryDelay: TimeSpan.FromSeconds(5),
-                        retryCount: 10
-                    )
-                );
-                .WaitAndRetryAsync(
                     sleepDurations: Backoff.DecorrelatedJitterBackoffV2(
                         medianFirstRetryDelay: TimeSpan.FromSeconds(5),
                         retryCount: 10
