@@ -42,8 +42,6 @@ namespace HfsChargesContainer.UseCases
         {
             LoggingHandler.LogInfo($"Starting charges import");
 
-            const string sheetRange = "A:AX";
-
             var batch = await _batchLogGateway.CreateAsync(ChargesLabel).ConfigureAwait(false);
             var googleFileSettings = await GetGoogleFileSetting(ChargesLabel).ConfigureAwait(false);
 
@@ -56,12 +54,12 @@ namespace HfsChargesContainer.UseCases
             {
                 if (googleFile.FileYear == pendingYear.Year)
                 {
-                    foreach (var sheetName in Enum.GetValues(typeof(RentGroup)))
+                    foreach (RentGroup sheetName in Enum.GetValues(typeof(RentGroup)))
                     {
                         var fetchChargesCallback = GetChargesBySheetTabCB(
                             sheetId: googleFile.GoogleIdentifier,
                             tabName: sheetName.ToString(),
-                            cellRange: sheetRange
+                            cellRange: GetSheetRangeByRentGroup(sheetName)
                         );
 
                         var chargesAux = await _fetchSheetRetryPolicy
@@ -81,6 +79,14 @@ namespace HfsChargesContainer.UseCases
             await _batchLogGateway.SetToSuccessAsync(batch.Id).ConfigureAwait(false);
             LoggingHandler.LogInfo($"End charges import");
             return true;
+        }
+
+        private string GetSheetRangeByRentGroup(RentGroup sheetTabName)
+        {
+            const string sheetRangeRent = "A:AX";
+            const string sheetRangeLeasehold = "A:AZ";
+            RentGroup[] leaseholdSheetNames = new[] { RentGroup.LHServCharges, RentGroup.LHMajorWorks };
+            return leaseholdSheetNames.Contains(sheetTabName) ? sheetRangeLeasehold : sheetRangeRent;
         }
 
         private FetchChargesBySheetTab GetChargesBySheetTabCB(string sheetId, string tabName, string cellRange)

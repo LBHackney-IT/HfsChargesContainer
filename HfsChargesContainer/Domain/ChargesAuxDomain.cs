@@ -84,6 +84,12 @@ namespace HfsChargesContainer.Domain
         [JsonProperty("Major Works Revenue")]
         public decimal? DMR { get; set; }
 
+        [JsonProperty("Staff Costs")]
+        public decimal? DR1 { get; set; }
+
+        [JsonProperty("CCTV monitoring")]
+        public decimal? DR2 { get; set; }
+
         [JsonProperty("R Administration Fee")]
         public decimal? DR5 { get; set; }
 

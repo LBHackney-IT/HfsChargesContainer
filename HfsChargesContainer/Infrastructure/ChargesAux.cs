@@ -36,6 +36,8 @@ namespace HfsChargesContainer.Infrastructure
         public decimal DMC { get; set; }
         public decimal DMJ { get; set; }
         public decimal DMR { get; set; }
+        public decimal DR1 { get; set; }
+        public decimal DR2 { get; set; }
         public decimal DR5 { get; set; }
         public decimal DRP { get; set; }
         public decimal DRR { get; set; }
