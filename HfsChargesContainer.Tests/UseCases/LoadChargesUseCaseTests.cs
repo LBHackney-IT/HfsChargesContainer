@@ -201,9 +201,10 @@ namespace HfsChargesContainer.Tests.UseCases
             // assert
             foreach (var (sheetId, sheetName, cellRange) in capturedInputs)
             {
+                // These match circumstantially due to a requirement change.
                 var expectedRange = IsSheetTabLeasehold(sheetName)
                     ? "A:AZ"
-                    : "A:AX";
+                    : "A:AZ";
 
                 Assert.Equal(sheetId, googleFileSettings.First().GoogleIdentifier);
                 Assert.True(sheetRentGroups.Contains(sheetName));
