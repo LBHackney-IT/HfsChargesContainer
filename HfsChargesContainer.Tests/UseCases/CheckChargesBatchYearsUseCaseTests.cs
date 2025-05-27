@@ -78,7 +78,7 @@ namespace HfsChargesContainer.Tests.UseCases
         private static DateTime GetNextSpecifiedDayOfWeek(DayOfWeek day)
         {
             var referenceDate = DateTime.Now;
-            int daysUntil = ((int)day - (int)referenceDate.DayOfWeek + 7) % 7;    
+            int daysUntil = ((int)day - (int)referenceDate.DayOfWeek + 7) % 7;
             return referenceDate.AddDays(daysUntil).Date;
         }
     }
