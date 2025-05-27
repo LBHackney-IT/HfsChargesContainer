@@ -8,6 +8,7 @@ using HfsChargesContainer.UseCases;
 using HfsChargesContainer.UseCases.Interfaces;
 using Moq;
 using Xunit;
+using HfsChargesContainer.Tests.TestsHelpers;
 
 namespace HfsChargesContainer.Tests.UseCases
 {
@@ -28,42 +29,43 @@ namespace HfsChargesContainer.Tests.UseCases
         }
 
         [Fact]
-        public async Task ExecuteAsync_OnSunday_CreatesAllBatchYears()
+        public async Task OnSundayAllBatchYearsGetProcessed()
         {
             // arrange
-            var sunday = GetNextDayOfWeek(DayOfWeek.Sunday);
-            var originalNow = DateTime.Now;
-            using (new DateTimeScope(sunday))
-            {
-                _gatewayMock.Setup(g => g.ExistDataForToday()).ReturnsAsync(false);
-                _gatewayMock.Setup(g => g.CreateAsync(It.IsAny<int>(), false)).ReturnsAsync(RandomGen.Create<CBYDomain>());
-                _gatewayMock.Setup(g => g.GetPendingYear()).ReturnsAsync(RandomGen.Create<CBYDomain>());
-
-                // act
-                await _classUnderTest.ExecuteAsync();
-
-                // assert
-                foreach (var year in _batchYears)
-                {
-                    _gatewayMock.Verify(g => g.CreateAsync(year, false), Times.Once);
-                }
-                _gatewayMock.Verify(g => g.CreateAsync(It.IsAny<int>(), false), Times.Exactly(_batchYears.Count));
-            }
-        }
-
-        [Fact]
-        public async Task ExecuteAsync_OnNonSunday_CreatesOnlyMaxBatchYear()
-        {
-            // arrange
-            var maxYear = _batchYears.Max();
-            var nonSunday = GetNextDayOfWeek(DayOfWeek.Wednesday);
+            var sunday = GetNextSpecifiedDayOfWeek(DayOfWeek.Sunday);
 
             _gatewayMock.Setup(g => g.ExistDataForToday()).ReturnsAsync(false);
             _gatewayMock.Setup(g => g.CreateAsync(It.IsAny<int>(), false)).ReturnsAsync(RandomGen.Create<CBYDomain>());
             _gatewayMock.Setup(g => g.GetPendingYear()).ReturnsAsync(RandomGen.Create<CBYDomain>());
 
             // act
-            using (new DateTimeScope(nonSunday))
+            using (new DateTimeContext(sunday))
+            {
+                await _classUnderTest.ExecuteAsync();
+            }
+
+            // assert
+            _gatewayMock.Verify(g => g.CreateAsync(It.IsAny<int>(), false), Times.Exactly(_batchYears.Count));
+
+            foreach (var year in _batchYears)
+            {
+                _gatewayMock.Verify(g => g.CreateAsync(year, false), Times.Once);
+            }
+        }
+
+        [Fact]
+        public async Task OnNonSundayOnlyLatestBatchYearGetProcessed()
+        {
+            // arrange
+            var maxYear = _batchYears.Max();
+            var nonSunday = GetNextSpecifiedDayOfWeek(DayOfWeek.Wednesday);
+
+            _gatewayMock.Setup(g => g.ExistDataForToday()).ReturnsAsync(false);
+            _gatewayMock.Setup(g => g.CreateAsync(It.IsAny<int>(), false)).ReturnsAsync(RandomGen.Create<CBYDomain>());
+            _gatewayMock.Setup(g => g.GetPendingYear()).ReturnsAsync(RandomGen.Create<CBYDomain>());
+
+            // act
+            using (new DateTimeContext(nonSunday))
             {
                 await _classUnderTest.ExecuteAsync();
             }
@@ -73,43 +75,11 @@ namespace HfsChargesContainer.Tests.UseCases
             _gatewayMock.Verify(g => g.CreateAsync(It.IsAny<int>(), false), Times.Once);
         }
 
-        private static DateTime GetNextDayOfWeek(DayOfWeek day)
+        private static DateTime GetNextSpecifiedDayOfWeek(DayOfWeek day)
         {
-            var today = DateTime.Now;
-            int daysUntil = ((int)day - (int)today.DayOfWeek + 7) % 7;
-            return today.AddDays(daysUntil == 0 ? 7 : daysUntil).Date;
-        }
-
-        private class DateTimeScope : IDisposable
-        {
-            private static DateTime? _overrideNow;
-            private readonly DateTime? _previous;
-
-            public DateTimeScope(DateTime now)
-            {
-                _previous = _overrideNow;
-                _overrideNow = now;
-                System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(DateTimeNowShim).TypeHandle);
-            }
-
-            public void Dispose()
-            {
-                _overrideNow = _previous;
-            }
-
-            public static DateTime Now => _overrideNow ?? DateTime.Now;
-        }
-
-        private static class DateTimeNowShim
-        {
-            static DateTimeNowShim()
-            {
-                System.Reflection.FieldInfo field = typeof(DateTime).GetField("s_now", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
-                if (field != null)
-                {
-                    field.SetValue(null, (Func<DateTime>)(() => DateTimeScope.Now));
-                }
-            }
+            var referenceDate = DateTime.Now;
+            int daysUntil = ((int)day - (int)referenceDate.DayOfWeek + 7) % 7;    
+            return referenceDate.AddDays(daysUntil).Date;
         }
     }
 }
