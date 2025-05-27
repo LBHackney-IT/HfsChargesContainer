@@ -24,7 +24,11 @@ namespace HfsChargesContainer.UseCases
             var existDate = await _chargesBatchYearsGateway.ExistDataForToday().ConfigureAwait(false);
             if (!existDate)
             {
-                var chargesBatchYears = _chargesBatchYears.Split(';').Select(int.Parse).ToList();
+                var chargesBatchYears = _chargesBatchYears.Split(';').Select(int.Parse);
+
+                if (DateTime.Now.DayOfWeek != DayOfWeek.Sunday)
+                    chargesBatchYears = chargesBatchYears.Where(year => year == chargesBatchYears.Max());
+
                 foreach (var year in chargesBatchYears)
                 {
                     await _chargesBatchYearsGateway.CreateAsync(year).ConfigureAwait(false);
