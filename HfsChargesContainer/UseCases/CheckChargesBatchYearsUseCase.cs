@@ -25,10 +25,10 @@ namespace HfsChargesContainer.UseCases
             if (!existDate)
             {
                 var chargesBatchYears = _chargesBatchYears.Split(';').Select(int.Parse).ToList();
-                int maxYear = chargesBatchYears.Max();
+                //int maxYear = chargesBatchYears.Max();
 
-                if (DateTimeProvider.Now.DayOfWeek != DayOfWeek.Sunday)
-                    chargesBatchYears = chargesBatchYears.Where(year => year == maxYear).ToList();
+                //if (DateTimeProvider.Now.DayOfWeek != DayOfWeek.Sunday)
+                //    chargesBatchYears = chargesBatchYears.Where(year => year == maxYear).ToList();
 
                 foreach (var year in chargesBatchYears)
                 {
