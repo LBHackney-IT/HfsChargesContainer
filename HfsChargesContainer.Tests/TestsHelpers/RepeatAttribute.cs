@@ -17,9 +17,9 @@ public class RepeatAttribute : DataAttribute
 
     public override IEnumerable<object[]> GetData(MethodInfo testMethod)
     {
-        for (int i = 0; i < _count; i++)
+        for (int i = 1; i <= _count; i++)
         {
-            yield return new object[0];
+            yield return new object[] { i };
         }
     }
 }

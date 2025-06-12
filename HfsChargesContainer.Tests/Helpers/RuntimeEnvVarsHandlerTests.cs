@@ -58,7 +58,7 @@ namespace HfsChargesContainer.Tests.Helpers
 
         [Theory]
         [Repeat(100)]
-        public void RuntimeEnvVarsHandlerSetsTheEnvironment()
+        public void RuntimeEnvVarsHandlerSetsTheEnvironment(int _)
         {
             // arrange
             var appKeys = _ssmToAppKeyLookup.Values.ToList();
