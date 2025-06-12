@@ -56,7 +56,7 @@ namespace HfsChargesContainer.Tests.Helpers
                 Times.Once);
         }
 
-        [Fact]
+        [Theory]
         [Repeat(100)]
         public void RuntimeEnvVarsHandlerSetsTheEnvironment()
         {
