@@ -57,6 +57,7 @@ namespace HfsChargesContainer.Tests.Helpers
         }
 
         [Fact]
+        [Repeat(100)]
         public void RuntimeEnvVarsHandlerSetsTheEnvironment()
         {
             // arrange
