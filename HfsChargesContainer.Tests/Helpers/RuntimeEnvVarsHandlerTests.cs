@@ -13,7 +13,7 @@ using Xunit.Extensions.Ordering;
 
 namespace HfsChargesContainer.Tests.Helpers
 {
-    [Order(1)]
+    [Order(9001)]
     public class RuntimeEnvVarsHandlerTests
     {
         private Dictionary<string, string> _ssmToAppKeyLookup;
