@@ -12,6 +12,7 @@ using Xunit;
 
 namespace HfsChargesContainer.Tests.Helpers
 {
+    [Order(1)]
     public class RuntimeEnvVarsHandlerTests
     {
         private Dictionary<string, string> _ssmToAppKeyLookup;
