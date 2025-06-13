@@ -9,6 +9,7 @@ using HfsChargesContainer.Helpers;
 using HfsChargesContainer.Helpers.Interfaces;
 using Moq;
 using Xunit;
+using Xunit.Extensions.Ordering;
 
 namespace HfsChargesContainer.Tests.Helpers
 {
