@@ -2,6 +2,9 @@ using System.Collections.Generic;
 using System.Reflection;
 using Xunit.Sdk;
 
+/// 'Repeat' test attribute that is used to debug testss flake
+/// Usage: Mark your test method as [Theory] and add [Repeat(100)] below it.
+/// Then add a 'int _' input parameter to you test method signature.
 public class RepeatAttribute : DataAttribute
 {
     private readonly int _count;
