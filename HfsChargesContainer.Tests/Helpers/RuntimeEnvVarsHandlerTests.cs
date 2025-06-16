@@ -9,9 +9,11 @@ using HfsChargesContainer.Helpers;
 using HfsChargesContainer.Helpers.Interfaces;
 using Moq;
 using Xunit;
+using Xunit.Extensions.Ordering;
 
 namespace HfsChargesContainer.Tests.Helpers
 {
+    [Order(9001)]
     public class RuntimeEnvVarsHandlerTests
     {
         private Dictionary<string, string> _ssmToAppKeyLookup;
