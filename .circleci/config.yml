@@ -71,54 +71,11 @@ commands:
             docker push ${ECR_URL}/${ECR_NAME}:latest
 
 jobs:
-  check-code-formatting:
-    executor: docker-dotnet
-    steps:
-      - checkout
-      - run:
-          name: Install dotnet format
-          command: dotnet tool install dotnet-format --tool-path ./dotnet-format-local/
-      - run:
-          name: Run formatter check
-          command: ./dotnet-format-local/dotnet-format --check
-  run-automated-tests:
-    executor: docker-python
-    steps:
-      - checkout
-      - setup_remote_docker
-      - run:
-          name: Prepare the test container for build
-          command: |
-            # docker-compose expects to see this file even though it's not asked to spin up the main app container
-            cp .env.sample .env
-      - run:
-          name: Running automated tests
-          command: docker-compose run hfs-charges-nightly-process-tests
-  assume-role-development:
-    executor: docker-python
-    steps:
-      - assume-role-and-persist-workspace:
-          aws-account: $AWS_ACCOUNT_DEVELOPMENT
-  assume-role-staging:
-    executor: docker-python
-    steps:
-      - assume-role-and-persist-workspace:
-          aws-account: $AWS_ACCOUNT_STAGING
   assume-role-production:
     executor: docker-python
     steps:
       - assume-role-and-persist-workspace:
-          aws-account: $AWS_ACCOUNT_PRODUCTION
-  deploy-to-development:
-    executor: cci-aws
-    steps:
-      - deploy-image:
-          environment: "development"
-  deploy-to-staging:
-    executor: cci-aws
-    steps:
-      - deploy-image:
-          environment: "staging"
+          aws-account: $AWS_ACCOUNT_DISASTER_RECOVERY
   deploy-to-production:
     executor: cci-aws
     steps:
@@ -129,7 +86,7 @@ workflows:
   check-and-deploy-staging-and-production:
       jobs:
       - assume-role-production:
-          context: api-assume-role-housing-production-context
+          context: api-assume-role-disaster-recovery-context
           filters:
              branches:
                only: disaster-recovery
