@@ -135,8 +135,8 @@ workflows:
                only: disaster-recovery
       - permit-production-release:
           type: approval
-          requires:
-            - deploy-to-staging
+          # requires:
+          #   - deploy-to-staging
           filters:
             branches:
               only: disaster-recovery
