@@ -203,8 +203,8 @@ namespace HfsChargesContainer.Tests.UseCases
             {
                 // These match circumstantially due to a requirement change.
                 var expectedRange = IsSheetTabLeasehold(sheetName)
-                    ? "A:AZ"
-                    : "A:AZ";
+                    ? "A:BB"
+                    : "A:BB";
 
                 Assert.Equal(sheetId, googleFileSettings.First().GoogleIdentifier);
                 Assert.True(sheetRentGroups.Contains(sheetName));
