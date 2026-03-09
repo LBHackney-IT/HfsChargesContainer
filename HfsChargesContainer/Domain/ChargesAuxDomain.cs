@@ -90,7 +90,13 @@ namespace HfsChargesContainer.Domain
         [JsonProperty("CCTV monitoring")]
         public decimal? DR2 { get; set; }
 
-        [JsonProperty("R Administration Fee")]
+        [JsonProperty("Refuse Collection")]
+        public decimal? DR3 { get; set; }
+
+        [JsonProperty("Pest Control")]
+        public decimal? DR4 { get; set; }
+
+        [JsonProperty("Risk Assessments")]
         public decimal? DR5 { get; set; }
 
         [JsonProperty("Rechg Repairs no VAT")]

@@ -84,8 +84,8 @@ namespace HfsChargesContainer.UseCases
         private string GetSheetRangeByRentGroup(RentGroup sheetTabName)
         {
             // Sheet ranges will match now after the new requirements, but they won't match in general.
-            const string sheetRangeRent = "A:AZ";
-            const string sheetRangeLeasehold = "A:AZ";
+            const string sheetRangeRent = "A:BB";
+            const string sheetRangeLeasehold = "A:BB";
             RentGroup[] leaseholdSheetNames = new[] { RentGroup.LHServCharges, RentGroup.LHMajorWorks };
             return leaseholdSheetNames.Contains(sheetTabName) ? sheetRangeLeasehold : sheetRangeRent;
         }
