@@ -41,6 +41,7 @@ namespace HfsChargesContainer.UseCases
                 await _chargesBatchYearsGateway.SetToSuccessAsync(pendingYear.Year).ConfigureAwait(false);
                 await _batchLogGateway.SetToSuccessAsync(batch.Id).ConfigureAwait(false);
                 LoggingHandler.LogInfo($"End charges transactions import");
+                LoggingHandler.LogInfo(LoggingHandler.ProcessCompletedSuccessfullyMessage);
                 return true;
             }
             catch (Exception exc)
