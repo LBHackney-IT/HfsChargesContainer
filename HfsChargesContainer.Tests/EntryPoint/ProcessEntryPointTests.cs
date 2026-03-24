@@ -55,11 +55,11 @@ public class ProcessEntryPointTests
 
         _checkChargesBatchYearsUCMock
             .Setup(u => u.ExecuteAsync())
-            .ReturnsAsync(ProcessedYearCheckCallback(financialYearsQueue));
+            .Returns(() => Task.FromResult(ProcessedYearCheckCallback(financialYearsQueue)()));
 
         _loadChargesUCMock.Setup(u => u.ExecuteAsync()).ReturnsAsync(true);
-        _loadChargesHistoryUCMock.Setup(u => u.ExecuteAsync());
-        _loadChargesTransactionsUCMock.Setup(u => u.ExecuteAsync());
+        _loadChargesHistoryUCMock.Setup(u => u.ExecuteAsync()).ReturnsAsync(true);
+        _loadChargesTransactionsUCMock.Setup(u => u.ExecuteAsync()).ReturnsAsync(true);
 
         // act
         await _classUnderTest.Run();
@@ -104,7 +104,7 @@ public class ProcessEntryPointTests
         await processRun
             .Should()
             .ThrowAsync<ResourceCannotBeFoundException>(because: "GSheet Data source is not found")
-            .WithMessage("GDrive charges data sheets' identifiers were not found!");
+            .WithMessage($"GDrive charges data sheets' identifiers were not found or {HfsChargesContainer.Helpers.LoggingHandler.ProcessCompletedSuccessfullyMessage} was not reached!");
     }
 
     [Fact]
@@ -116,9 +116,11 @@ public class ProcessEntryPointTests
 
         _checkChargesBatchYearsUCMock
             .Setup(u => u.ExecuteAsync())
-            .ReturnsAsync(ProcessedYearCheckCallback(financialYearsQueue));
+            .Returns(() => Task.FromResult(ProcessedYearCheckCallback(financialYearsQueue)()));
 
         _loadChargesUCMock.Setup(u => u.ExecuteAsync()).ReturnsAsync(true);
+        _loadChargesHistoryUCMock.Setup(u => u.ExecuteAsync()).ReturnsAsync(true);
+        _loadChargesTransactionsUCMock.Setup(u => u.ExecuteAsync()).ReturnsAsync(true);
 
         // act
         await _classUnderTest.Run();
@@ -140,7 +142,7 @@ public class ProcessEntryPointTests
 
         _checkChargesBatchYearsUCMock
             .Setup(u => u.ExecuteAsync())
-            .ReturnsAsync(ProcessedYearCheckCallback(financialYearsQueue));
+            .Returns(() => Task.FromResult(ProcessedYearCheckCallback(financialYearsQueue)()));
 
         _loadChargesUCMock.Setup(u => u.ExecuteAsync()).ReturnsAsync(true);
 
@@ -149,7 +151,10 @@ public class ProcessEntryPointTests
 
         _loadChargesHistoryUCMock
             .Setup(u => u.ExecuteAsync())
-            .Callback(action);
+            .Callback(action)
+            .ReturnsAsync(true);
+
+        _loadChargesTransactionsUCMock.Setup(u => u.ExecuteAsync()).ReturnsAsync(true);
 
         // act
         await PreventExceptionBubble(async () => await _classUnderTest.Run());
