@@ -27,7 +27,7 @@ namespace HfsChargesContainer.UseCases
             _transactionGateway = transactionGateway;
         }
 
-        public async Task<bool> ExecuteAsync()
+        public async Task ExecuteAsync()
         {
             LoggingHandler.LogInfo($"Starting charges transactions import");
             var batch = await _batchLogGateway.CreateAsync(_label).ConfigureAwait(false);
@@ -42,7 +42,6 @@ namespace HfsChargesContainer.UseCases
                 await _batchLogGateway.SetToSuccessAsync(batch.Id).ConfigureAwait(false);
                 LoggingHandler.LogInfo($"End charges transactions import");
                 LoggingHandler.LogInfo(LoggingHandler.ProcessCompletedSuccessfullyMessage);
-                return true;
             }
             catch (Exception exc)
             {
