@@ -46,7 +46,7 @@ namespace HfsChargesContainer
 
             if (!chargesWereLoaded)
             {
-                var errorMessage = $"GDrive charges data sheets' identifiers were not found or {LoggingHandler.ProcessCompletedSuccessfullyMessage} was not reached!";
+                var errorMessage = "GDrive charges data sheets' identifiers were not found!";
 
                 LoggingHandler.LogError(errorMessage);
 
@@ -54,22 +54,10 @@ namespace HfsChargesContainer
             }
 
             LoggingHandler.LogInfo("Loading Charges to ChargesHistory.");
-            bool historyLoaded = await _loadChargesHistoryUseCase.ExecuteAsync();
-            if (!historyLoaded)
-            {
-                var errorMessage = $"Charges History load failed: {LoggingHandler.ProcessCompletedSuccessfullyMessage} was not reached!";
-                LoggingHandler.LogError(errorMessage);
-                throw new Exception(errorMessage);
-            }
+            await _loadChargesHistoryUseCase.ExecuteAsync();
 
             LoggingHandler.LogInfo("Inserting new Charge Transactions.");
-            bool transactionsLoaded = await _loadChargesTransactionsUseCase.ExecuteAsync();
-            if (!transactionsLoaded)
-            {
-                var errorMessage = $"Charge Transactions load failed: {LoggingHandler.ProcessCompletedSuccessfullyMessage} was not reached!";
-                LoggingHandler.LogError(errorMessage);
-                throw new Exception(errorMessage);
-            }
+            await _loadChargesTransactionsUseCase.ExecuteAsync();
         }
     }
 }
