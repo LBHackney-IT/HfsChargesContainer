@@ -4,6 +4,8 @@ namespace HfsChargesContainer.Helpers
 {
     public static class LoggingHandler
     {
+        public const string ProcessCompletedSuccessfullyMessage = "Process completed successfully";
+
         public static void LogError(string message)
         {
             Console.Error.WriteLine($"[ERROR]: {message}");
