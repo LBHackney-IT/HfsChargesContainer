@@ -58,8 +58,8 @@ public class ProcessEntryPointTests
             .Returns(() => Task.FromResult(ProcessedYearCheckCallback(financialYearsQueue)()));
 
         _loadChargesUCMock.Setup(u => u.ExecuteAsync()).ReturnsAsync(true);
-        _loadChargesHistoryUCMock.Setup(u => u.ExecuteAsync()).ReturnsAsync(true);
-        _loadChargesTransactionsUCMock.Setup(u => u.ExecuteAsync()).ReturnsAsync(true);
+        _loadChargesHistoryUCMock.Setup(u => u.ExecuteAsync());
+        _loadChargesTransactionsUCMock.Setup(u => u.ExecuteAsync());
 
         // act
         await _classUnderTest.Run();
@@ -104,7 +104,7 @@ public class ProcessEntryPointTests
         await processRun
             .Should()
             .ThrowAsync<ResourceCannotBeFoundException>(because: "GSheet Data source is not found")
-            .WithMessage($"GDrive charges data sheets' identifiers were not found or {HfsChargesContainer.Helpers.LoggingHandler.ProcessCompletedSuccessfullyMessage} was not reached!");
+            .WithMessage($"GDrive charges data sheets' identifiers were not found!");
     }
 
     [Fact]
@@ -119,8 +119,8 @@ public class ProcessEntryPointTests
             .Returns(() => Task.FromResult(ProcessedYearCheckCallback(financialYearsQueue)()));
 
         _loadChargesUCMock.Setup(u => u.ExecuteAsync()).ReturnsAsync(true);
-        _loadChargesHistoryUCMock.Setup(u => u.ExecuteAsync()).ReturnsAsync(true);
-        _loadChargesTransactionsUCMock.Setup(u => u.ExecuteAsync()).ReturnsAsync(true);
+        _loadChargesHistoryUCMock.Setup(u => u.ExecuteAsync());
+        _loadChargesTransactionsUCMock.Setup(u => u.ExecuteAsync());
 
         // act
         await _classUnderTest.Run();
@@ -151,10 +151,9 @@ public class ProcessEntryPointTests
 
         _loadChargesHistoryUCMock
             .Setup(u => u.ExecuteAsync())
-            .Callback(action)
-            .ReturnsAsync(true);
+            .Callback(action);
 
-        _loadChargesTransactionsUCMock.Setup(u => u.ExecuteAsync()).ReturnsAsync(true);
+        _loadChargesTransactionsUCMock.Setup(u => u.ExecuteAsync());
 
         // act
         await PreventExceptionBubble(async () => await _classUnderTest.Run());
