@@ -55,7 +55,7 @@ public class ProcessEntryPointTests
 
         _checkChargesBatchYearsUCMock
             .Setup(u => u.ExecuteAsync())
-            .ReturnsAsync(ProcessedYearCheckCallback(financialYearsQueue));
+            .Returns(() => Task.FromResult(ProcessedYearCheckCallback(financialYearsQueue)()));
 
         _loadChargesUCMock.Setup(u => u.ExecuteAsync()).ReturnsAsync(true);
         _loadChargesHistoryUCMock.Setup(u => u.ExecuteAsync());
@@ -104,7 +104,7 @@ public class ProcessEntryPointTests
         await processRun
             .Should()
             .ThrowAsync<ResourceCannotBeFoundException>(because: "GSheet Data source is not found")
-            .WithMessage("GDrive charges data sheets' identifiers were not found!");
+            .WithMessage($"GDrive charges data sheets' identifiers were not found!");
     }
 
     [Fact]
@@ -116,9 +116,11 @@ public class ProcessEntryPointTests
 
         _checkChargesBatchYearsUCMock
             .Setup(u => u.ExecuteAsync())
-            .ReturnsAsync(ProcessedYearCheckCallback(financialYearsQueue));
+            .Returns(() => Task.FromResult(ProcessedYearCheckCallback(financialYearsQueue)()));
 
         _loadChargesUCMock.Setup(u => u.ExecuteAsync()).ReturnsAsync(true);
+        _loadChargesHistoryUCMock.Setup(u => u.ExecuteAsync());
+        _loadChargesTransactionsUCMock.Setup(u => u.ExecuteAsync());
 
         // act
         await _classUnderTest.Run();
@@ -140,7 +142,7 @@ public class ProcessEntryPointTests
 
         _checkChargesBatchYearsUCMock
             .Setup(u => u.ExecuteAsync())
-            .ReturnsAsync(ProcessedYearCheckCallback(financialYearsQueue));
+            .Returns(() => Task.FromResult(ProcessedYearCheckCallback(financialYearsQueue)()));
 
         _loadChargesUCMock.Setup(u => u.ExecuteAsync()).ReturnsAsync(true);
 
@@ -150,6 +152,8 @@ public class ProcessEntryPointTests
         _loadChargesHistoryUCMock
             .Setup(u => u.ExecuteAsync())
             .Callback(action);
+
+        _loadChargesTransactionsUCMock.Setup(u => u.ExecuteAsync());
 
         // act
         await PreventExceptionBubble(async () => await _classUnderTest.Run());

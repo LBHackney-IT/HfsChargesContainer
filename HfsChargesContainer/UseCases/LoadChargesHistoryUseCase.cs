@@ -24,7 +24,7 @@ namespace HfsChargesContainer.UseCases
             _chargesGateway = chargesGateway;
         }
 
-        public async Task<bool> ExecuteAsync()
+        public async Task ExecuteAsync()
         {
 
             LoggingHandler.LogInfo($"Starting load charges history");
@@ -39,8 +39,7 @@ namespace HfsChargesContainer.UseCases
                 await _batchLogGateway.SetToSuccessAsync(batch.Id).ConfigureAwait(false);
 
                 LoggingHandler.LogInfo($"End load charges history");
-                // This return is not meaningful, but keeping it due to it having been here historically.
-                return true;
+                LoggingHandler.LogInfo(LoggingHandler.ProcessCompletedSuccessfullyMessage);
             }
             catch (Exception exc)
             {

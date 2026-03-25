@@ -78,6 +78,7 @@ namespace HfsChargesContainer.UseCases
 
             await _batchLogGateway.SetToSuccessAsync(batch.Id).ConfigureAwait(false);
             LoggingHandler.LogInfo($"End charges import");
+            LoggingHandler.LogInfo(LoggingHandler.ProcessCompletedSuccessfullyMessage);
             return true;
         }
 
