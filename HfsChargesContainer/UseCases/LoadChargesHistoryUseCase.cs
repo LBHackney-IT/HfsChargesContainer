@@ -39,7 +39,6 @@ namespace HfsChargesContainer.UseCases
                 await _batchLogGateway.SetToSuccessAsync(batch.Id).ConfigureAwait(false);
 
                 LoggingHandler.LogInfo($"End load charges history");
-                LoggingHandler.LogInfo(LoggingHandler.ProcessCompletedSuccessfullyMessage);
             }
             catch (Exception exc)
             {
