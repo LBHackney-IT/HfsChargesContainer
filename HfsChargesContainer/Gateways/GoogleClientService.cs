@@ -55,7 +55,12 @@ namespace HfsChargesContainer.Gateways
                             : header;
 
                         // Assign the value to this property
-                        rowItemAccessor[propertyName] = row[cellIterator++];
+                        var cellValue = row[cellIterator++];
+                        if (cellValue is string stringValue)
+                        {
+                            cellValue = stringValue.Trim();
+                        }
+                        rowItemAccessor[propertyName] = cellValue;
                     }
                 }
                 rowObjects.Add(rowItem);
@@ -65,14 +70,38 @@ namespace HfsChargesContainer.Gateways
             try
             {
                 LoggingHandler.LogInfo($"Writing values to objects and serializing");
-                string convertedJson = JsonConvert.SerializeObject(rowObjects);
-                var entities = JsonConvert.DeserializeObject<IList<_TEntity>>(convertedJson);
+                var entities = new List<_TEntity>();
+                bool hasErrors = false;
+
+                for (int i = 0; i < rowObjects.Count; i++)
+                {
+                    try
+                    {
+                        string convertedJson = JsonConvert.SerializeObject(rowObjects[i]);
+                        var entity = JsonConvert.DeserializeObject<_TEntity>(convertedJson);
+                        if (entity != null)
+                        {
+                            entities.Add(entity);
+                        }
+                    }
+                    catch (Exception exc)
+                    {
+                        hasErrors = true;
+                        int spreadsheetRowNumber = i + 2; // exclude header
+                        LoggingHandler.LogWarning($"Skip row: Failure parsing row {spreadsheetRowNumber}. Message: {exc.Message}");
+                    }
+                }
+
+                if (hasErrors)
+                {
+                    LoggingHandler.LogError("ALARM: Spreadsheet row parsing failed. Some rows were skipped.");
+                }
 
                 return entities;
             }
             catch (Exception exc)
             {
-                LoggingHandler.LogInfo($"Error writing values to objects and serializing");
+                LoggingHandler.LogInfo($"Failure writing values to objects and serializing");
                 LoggingHandler.LogInfo(exc.ToString());
 
                 throw;
